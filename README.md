@@ -39,9 +39,28 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 echo 'LINEAR_API_KEY=lin_api_yourkey' > .env
 ```
 
-### 2. Open the repo in VS Code
+### 2. Add the MCP server to your project
 
-That's it. The included `.vscode/mcp.json` tells VS Code how to start the MCP server:
+Add `.vscode/mcp.json` to your project. It tells VS Code how to start the MCP server.
+
+**Option A — Install from GitHub (recommended for other projects):**
+
+```json
+{
+  "servers": {
+    "swarmia": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": ["--from", "git+https://github.com/YOUR_ORG/Swarmia_MCP", "swarmia-mcp"],
+      "envFile": "${workspaceFolder}/.env"
+    }
+  }
+}
+```
+
+`uvx` fetches the package directly from GitHub, builds it in an isolated environment, and runs the `swarmia-mcp` entry point. No cloning required &mdash; just commit this `mcp.json` to your repo and every developer gets the server automatically.
+
+**Option B — Local development (this repo):**
 
 ```json
 {
@@ -49,13 +68,15 @@ That's it. The included `.vscode/mcp.json` tells VS Code how to start the MCP se
     "swarmia": {
       "type": "stdio",
       "command": "uv",
-      "args": ["run", "server.py"]
+      "args": ["run", "python", "-m", "swarmia_mcp"]
     }
   }
 }
 ```
 
-When you invoke `/swarmia` in the chat panel, VS Code automatically spawns `uv run server.py` as a child process and connects to it over stdio. No manual server startup needed &mdash; `uv` resolves dependencies and creates an isolated environment on first run.
+When you invoke `/swarmia` in the chat panel, VS Code automatically spawns the server as a child process and connects to it over stdio. No manual server startup needed &mdash; `uv` resolves dependencies and creates an isolated environment on first run.
+
+> **Skills:** The `/swarmia` and `/swarmia-admin` skills are not installed automatically with the MCP server. To enable them, copy the `.github/skills/swarmia/` and `.github/skills/swarmia-admin/` directories from this repository into your project's `.github/skills/` folder. Without these skills, the tools still work &mdash; but the LLM won't have the persona and routing instructions that make `/swarmia` invocations work.
 
 ### 3. Use `/swarmia` in the chat
 
@@ -66,13 +87,13 @@ Type `/swarmia` followed by your question or request. The LLM routes your intent
 For debugging or testing outside VS Code, you can run the server directly:
 
 ```bash
-uv run server.py
+uv run python -m swarmia_mcp
 ```
 
 Or use MCP Inspector to call tools interactively:
 
 ```bash
-npx @modelcontextprotocol/inspector uv run server.py
+npx @modelcontextprotocol/inspector uv run python -m swarmia_mcp
 ```
 
 ### IDE Skills
@@ -135,7 +156,7 @@ IDE (VS Code)
   ├── /swarmia-admin    (Skill — infra persona)
   └── LLM routes intent
         ↓
-  server.py (FastMCP, stdio transport)
+  swarmia_mcp/server.py (FastMCP, stdio transport)
     ├── check_swarmia_commit_hygiene  →  local git + Linear GraphQL API
     ├── scaffold_swarmia_deployment   →  filesystem scan + YAML generation
     └── query_swarmia_docs            →  bundled docs_context.md
@@ -143,7 +164,7 @@ IDE (VS Code)
 
 **Transport:** stdio (zero-latency local process). The server runs as a child process of the IDE &mdash; no network ports, no Docker.
 
-**Distribution:** `pyproject.toml` + `uv`. One command (`uv run server.py`) handles everything.
+**Distribution:** Installable Python package. Use `uvx --from git+https://github.com/YOUR_ORG/Swarmia_MCP swarmia-mcp` to install from GitHub without cloning, or `uv run python -m swarmia_mcp` for local development.
 
 ## Tools
 
@@ -174,16 +195,19 @@ Covers: getting started, deployment tracking, DORA metrics, cycle time, investme
 ## Project Structure
 
 ```
-├── server.py                           # MCP server (all 3 tools)
-├── docs_context.md                     # Bundled Swarmia documentation
-├── pyproject.toml                      # Dependencies & project metadata
+├── swarmia_mcp/                         # Installable Python package
+│   ├── __init__.py
+│   ├── __main__.py                     # python -m swarmia_mcp entry point
+│   ├── server.py                       # MCP server (all 3 tools)
+│   └── docs_context.md                 # Bundled Swarmia documentation
+├── pyproject.toml                      # Build system, dependencies & entry points
 ├── .env                                # API keys (gitignored)
 ├── .vscode/
 │   └── mcp.json                        # MCP server config (VS Code auto-starts)
 ├── .github/
 │   ├── copilot_instructions.md         # Developer instructions for this repo
 │   └── skills/
-│       ├── swarmia/SKILL.md            # /swarmia skill definition
-│       └── swarmia-admin/SKILL.md      # /swarmia-admin skill definition
+│       ├── swarmia/SKILL.md            # /swarmia skill definition (copy to your project)
+│       └── swarmia-admin/SKILL.md      # /swarmia-admin skill definition (copy to your project)
 └── README.md
 ```
