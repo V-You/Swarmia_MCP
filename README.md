@@ -14,11 +14,16 @@ This project introduces a singular Skill, backed by a custom MCP Server. You shi
 
 I'm new. I'm unsure what to do. ``/swarmia`` tells me what's wrong and how to fix:
 
-<img src="img/Screenshot_2026-02-22_195923.png" alt="Example 1: /swarmia tells me what to do" width="50%" />
+<kbd><img src="img/Screenshot_2026-02-22_195923.png" alt="Example 1: /swarmia tells me what to do" width="111px" /></kbd>
 
 It works:
 
-<img src="img/Screenshot_2026-02-22_201741.png" alt="Example 1: I do it and succeed" width="50%" />
+<kbd><img src="img/Screenshot_2026-02-22_201741.png" alt="Example 1: I do it and succeed" width="111px" /></kbd>
+
+I have my doubts that my Linear API key is working correctly. Let's check:
+
+<kbd><img src="img/Screenshot_2026-02-22_203609.png" alt="Is my API key ok? Yep, sure is." width="111px" /></kbd>
+
 
 ---
 
