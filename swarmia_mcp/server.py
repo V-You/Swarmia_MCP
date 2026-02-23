@@ -10,6 +10,7 @@ Test: npx @modelcontextprotocol/inspector uv run python -m swarmia_mcp
 
 from __future__ import annotations
 
+import json
 import os
 import re
 import subprocess
@@ -18,8 +19,43 @@ from pathlib import Path
 import httpx
 from dotenv import load_dotenv
 from fastmcp import FastMCP
+from fastmcp.server.apps import AppConfig
 
 load_dotenv()
+
+# ---------------------------------------------------------------------------
+# Widget HTML (built by Vite into assets/)
+# ---------------------------------------------------------------------------
+
+ASSETS_DIR = Path(__file__).parent.parent / "assets"
+
+
+def _load_widget_html(widget_name: str) -> str:
+    """Load a built widget HTML file, inlining the JS bundle for self-contained serving."""
+    html_path = ASSETS_DIR / widget_name / "index.html"
+    if not html_path.exists():
+        return f"<html><body><p>Widget '{widget_name}' not built. Run <code>pnpm run build</code>.</p></body></html>"
+
+    html = html_path.read_text(encoding="utf-8")
+
+    # Inline the JS bundle so the HTML is fully self-contained
+    # Vite outputs: <script type="module" crossorigin src="../shared/xxx.js"></script>
+    import re as _re
+
+    def _inline_script(match: _re.Match) -> str:
+        src = match.group(1)
+        js_path = (html_path.parent / src).resolve()
+        if js_path.exists():
+            js_content = js_path.read_text(encoding="utf-8")
+            return f'<script type="module">{js_content}</script>'
+        return match.group(0)
+
+    html = _re.sub(
+        r'<script type="module" crossorigin src="([^"]+)"></script>',
+        _inline_script,
+        html,
+    )
+    return html
 
 mcp = FastMCP(
     "Swarmia",
@@ -128,7 +164,13 @@ def _get_linear_viewer_id() -> str | None:
 # ---------------------------------------------------------------------------
 
 
-@mcp.tool
+@mcp.resource("ui://swarmia/commit-hygiene.html")
+def commit_hygiene_view() -> str:
+    """Interactive commit hygiene dashboard widget."""
+    return _load_widget_html("commit-hygiene")
+
+
+@mcp.tool(app=AppConfig(resource_uri="ui://swarmia/commit-hygiene.html"))
 def check_swarmia_commit_hygiene(num_commits: int = 10) -> str:
     """Check if recent commits and the current branch follow Swarmia tracking conventions.
 
@@ -249,7 +291,29 @@ def check_swarmia_commit_hygiene(num_commits: int = 10) -> str:
     else:
         lines.append(f"\n**Summary:** All {len(commits)} commits have issue keys. ✅")
 
-    return "\n".join(lines)
+    # Build structured data for the widget
+    widget_linear = {}
+    for issue_id, info in linear_data.items():
+        assigned_to_you = None
+        if viewer_id and info.get("assignee_id"):
+            assigned_to_you = info["assignee_id"] == viewer_id
+        widget_linear[issue_id] = {
+            "title": info["title"],
+            "state": info["state"],
+            "assigned_to_you": assigned_to_you,
+        }
+
+    result = {
+        "text": "\n".join(lines),
+        "data": {
+            "branch": branch,
+            "branch_ids": branch_ids,
+            "commits": commits,
+            "linear_data": widget_linear,
+            "summary": lines[-1] if lines else "",
+        },
+    }
+    return json.dumps(result)
 
 
 # ---------------------------------------------------------------------------
@@ -286,6 +350,12 @@ jobs:
             }}'
 """
 
+@mcp.resource("ui://swarmia/deployment-scaffold.html")
+def deployment_scaffold_view() -> str:
+    """Interactive deployment scaffold configuration wizard."""
+    return _load_widget_html("deployment-scaffold")
+
+
 GITLAB_CI_TEMPLATE = """\
 # Swarmia Deployment Tracking
 # Add SWARMIA_DEPLOYMENTS_AUTHORIZATION as a CI/CD variable
@@ -309,7 +379,7 @@ swarmia-deployment:
 """
 
 
-@mcp.tool
+@mcp.tool(app=AppConfig(resource_uri="ui://swarmia/deployment-scaffold.html"))
 def scaffold_swarmia_deployment(
     app_name: str = "",
     workflow_name: str = "deploy",
@@ -422,7 +492,57 @@ stage('Notify Swarmia') {{
             "Would you like me to create a `.github/workflows/` directory and generate a GitHub Actions workflow?"
         )
 
-    return "\n".join(lines)
+    text = "\n".join(lines)
+
+    # Detect which CI was found for the widget
+    detected_ci = None
+    if has_github:
+        detected_ci = "GitHub Actions"
+    elif has_gitlab:
+        detected_ci = "GitLab CI"
+    elif has_jenkins:
+        detected_ci = "Jenkins"
+
+    # Extract the raw YAML/config snippet (between code fences) for widget preview
+    yaml_snippet = ""
+    setup_steps: list[str] = []
+    in_code = False
+    code_lines: list[str] = []
+    for line in lines:
+        if line.startswith("```") and not in_code:
+            in_code = True
+            continue
+        if line.startswith("```") and in_code:
+            in_code = False
+            continue
+        if in_code:
+            code_lines.append(line)
+    yaml_snippet = "\n".join(code_lines)
+
+    # Extract setup steps (lines starting with a number after **Setup steps:**)
+    in_steps = False
+    for line in lines:
+        if "Setup steps:" in line:
+            in_steps = True
+            continue
+        if in_steps and line.strip():
+            # Strip leading number + dot
+            step = line.strip()
+            if step and step[0].isdigit():
+                step = step.split(". ", 1)[-1]
+            setup_steps.append(step)
+
+    result = {
+        "text": text,
+        "data": {
+            "detected_ci": detected_ci,
+            "app_name": app_name,
+            "workflow_name": workflow_name,
+            "yaml_snippet": yaml_snippet,
+            "setup_steps": setup_steps,
+        },
+    }
+    return json.dumps(result)
 
 
 # ---------------------------------------------------------------------------
@@ -430,7 +550,13 @@ stage('Notify Swarmia') {{
 # ---------------------------------------------------------------------------
 
 
-@mcp.tool
+@mcp.resource("ui://swarmia/docs-diagnostic.html")
+def docs_diagnostic_view() -> str:
+    """Interactive documentation diagnostic dashboard."""
+    return _load_widget_html("docs-diagnostic")
+
+
+@mcp.tool(app=AppConfig(resource_uri="ui://swarmia/docs-diagnostic.html"))
 def query_swarmia_docs(query: str) -> str:
     """Search the bundled Swarmia documentation for an answer to the user's question.
 
@@ -451,7 +577,7 @@ def query_swarmia_docs(query: str) -> str:
             "Please reinstall the Swarmia MCP server assets."
         )
 
-    return (
+    text = (
         f"**User question:** {query}\n\n"
         f"---\n\n"
         f"**Swarmia Documentation Context:**\n\n{docs_content}\n\n"
@@ -459,6 +585,54 @@ def query_swarmia_docs(query: str) -> str:
         f"Use the documentation above to answer the user's question concisely (max 3 sentences "
         f"unless the user asks for more detail)."
     )
+
+    # Build integration diagnostic signals from the local workspace
+    integrations = []
+
+    # GitHub: check if .github/ exists
+    has_github = (Path.cwd() / ".github").is_dir()
+    integrations.append({
+        "name": "GitHub",
+        "status": "green" if has_github else "red",
+        "detail": "Repository connected" if has_github else "No .github/ directory found",
+    })
+
+    # Linear: check if API key is configured
+    has_linear = bool(os.getenv("LINEAR_API_KEY"))
+    integrations.append({
+        "name": "Linear",
+        "status": "green" if has_linear else "yellow",
+        "detail": "API key configured" if has_linear else "LINEAR_API_KEY not set — regex-only mode",
+    })
+
+    # Slack: informational (cannot check locally)
+    integrations.append({
+        "name": "Slack",
+        "status": "yellow",
+        "detail": "Configured in Swarmia dashboard (cannot verify locally)",
+    })
+
+    # Deployment tracking: check for webhook config
+    has_deploy = any(
+        "hook.swarmia.com" in (f.read_text(encoding="utf-8", errors="ignore"))
+        for f in Path.cwd().rglob("*.yml")
+        if f.stat().st_size < 50_000
+    )
+    integrations.append({
+        "name": "Deployment Tracking",
+        "status": "green" if has_deploy else "red",
+        "detail": "Swarmia webhook found in CI config" if has_deploy else "No deployment webhook configured",
+    })
+
+    result = {
+        "text": text,
+        "data": {
+            "query": query,
+            "answer": "(LLM will summarize from documentation context)",
+            "integrations": integrations,
+        },
+    }
+    return json.dumps(result)
 
 
 # ---------------------------------------------------------------------------

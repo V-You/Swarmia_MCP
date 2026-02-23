@@ -13,7 +13,6 @@ __pycache__/
 
 # Node / MCP Apps (Phase 2)
 node_modules/
-assets/
 
 # General
 *cache*
