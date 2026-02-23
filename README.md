@@ -18,7 +18,7 @@
 
 ## Scenario 2: 
 
-| /swarmia I just joined the team. Is my local setup ready for Swarmia? | Something | Something |
+| /swarmia I just joined the team. Is my local setup ready? | Something | Something |
 | :---: | :----: | :---: |
 | <kbd><img src="img/Screenshot_2026-02-23_023512.png" alt="Scenario 2: I just joined the team" width="99px" /></kbd> | <kbd>img</kbd> | <kbd>img</kbd> |
 
