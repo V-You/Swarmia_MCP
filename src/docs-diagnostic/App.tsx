@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { initMcpApp } from "../lib/mcp-apps";
 
 interface Integration {
   name: string;
@@ -16,23 +17,10 @@ export function App() {
   const [data, setData] = useState<DiagnosticData | null>(null);
 
   useEffect(() => {
-    const handler = (event: MessageEvent) => {
-      try {
-        const msg = event.data;
-        if (msg?.type === "tool_result" && msg.payload?.data) {
-          setData(msg.payload.data);
-        } else if (msg?.data) {
-          setData(msg.data);
-        } else if (typeof msg === "string") {
-          const parsed = JSON.parse(msg);
-          if (parsed.data) setData(parsed.data);
-        }
-      } catch {
-        // ignore non-JSON messages
-      }
-    };
-    window.addEventListener("message", handler);
-    return () => window.removeEventListener("message", handler);
+    return initMcpApp({
+      name: "swarmia-docs-diagnostic",
+      onData: (d) => setData(d as unknown as DiagnosticData),
+    });
   }, []);
 
   if (!data) {

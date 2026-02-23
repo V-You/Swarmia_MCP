@@ -16,10 +16,26 @@ import re
 import subprocess
 from pathlib import Path
 
+import logging
+import sys
+
 import httpx
 from dotenv import load_dotenv
 from fastmcp import FastMCP
 from fastmcp.server.apps import AppConfig
+from fastmcp.tools.tool import ToolResult
+from mcp.types import TextContent
+
+# Plain logger — avoids Rich column padding and line wrapping in VS Code
+_handler = logging.StreamHandler(sys.stderr)
+_handler.setFormatter(logging.Formatter("%(message)s"))
+logger = logging.getLogger("swarmia_mcp")
+logger.addHandler(_handler)
+logger.setLevel(logging.INFO)
+logger.propagate = False
+
+# Suppress FastMCP's Rich-formatted internal logger (causes line wrapping in VS Code)
+logging.getLogger("fastmcp").setLevel(logging.WARNING)
 
 load_dotenv()
 
@@ -181,6 +197,7 @@ def check_swarmia_commit_hygiene(num_commits: int = 10) -> str:
     Args:
         num_commits: Number of recent commits to check (default: 10).
     """
+    logger.info("check_swarmia_commit_hygiene: scanning last %d commits", num_commits)
     lines: list[str] = []
 
     # --- Get branch name ---
@@ -303,17 +320,17 @@ def check_swarmia_commit_hygiene(num_commits: int = 10) -> str:
             "assigned_to_you": assigned_to_you,
         }
 
-    result = {
-        "text": "\n".join(lines),
-        "data": {
+    return ToolResult(
+        content=[TextContent(type="text", text="\n".join(lines))],
+        structured_content={
             "branch": branch,
             "branch_ids": branch_ids,
             "commits": commits,
             "linear_data": widget_linear,
             "summary": lines[-1] if lines else "",
         },
-    }
-    return json.dumps(result)
+        meta={},
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -400,6 +417,7 @@ def scaffold_swarmia_deployment(
         workflow_name: For GitHub Actions, the name of the deployment workflow
                        to trigger on (default: "deploy").
     """
+    logger.info("scaffold_swarmia_deployment: generating config (app=%s)", app_name or "<auto>")
     workspace = Path.cwd()
 
     if not app_name:
@@ -532,17 +550,17 @@ stage('Notify Swarmia') {{
                 step = step.split(". ", 1)[-1]
             setup_steps.append(step)
 
-    result = {
-        "text": text,
-        "data": {
+    return ToolResult(
+        content=[TextContent(type="text", text=text)],
+        structured_content={
             "detected_ci": detected_ci,
             "app_name": app_name,
             "workflow_name": workflow_name,
             "yaml_snippet": yaml_snippet,
             "setup_steps": setup_steps,
         },
-    }
-    return json.dumps(result)
+        meta={},
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -567,6 +585,7 @@ def query_swarmia_docs(query: str) -> str:
     Args:
         query: The user's question about Swarmia.
     """
+    logger.info("query_swarmia_docs: %s", query[:80])
     docs_path = Path(__file__).parent / "docs_context.md"
 
     try:
@@ -624,15 +643,15 @@ def query_swarmia_docs(query: str) -> str:
         "detail": "Swarmia webhook found in CI config" if has_deploy else "No deployment webhook configured",
     })
 
-    result = {
-        "text": text,
-        "data": {
+    return ToolResult(
+        content=[TextContent(type="text", text=text)],
+        structured_content={
             "query": query,
             "answer": "(LLM will summarize from documentation context)",
             "integrations": integrations,
         },
-    }
-    return json.dumps(result)
+        meta={},
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -641,7 +660,7 @@ def query_swarmia_docs(query: str) -> str:
 
 
 def main():
-    mcp.run(transport="stdio")
+    mcp.run(transport="stdio", show_banner=False)
 
 
 if __name__ == "__main__":

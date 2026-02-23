@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite build --watch",
-    "build": "for w in $(ls -d src/*/); do w=$(basename $w); WIDGET=$w vite build; done",
+    "build": "for w in $(ls -d src/*/); do w=$(basename $w); [ -f src/$w/index.html ] && WIDGET=$w vite build; done",
     "build:all": "vite build --emptyOutDir",
     "preview": "vite preview"
   },

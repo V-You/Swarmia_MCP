@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { initMcpApp } from "../lib/mcp-apps";
 
 interface Commit {
   sha: string;
@@ -21,26 +22,10 @@ export function App() {
   const [data, setData] = useState<HygieneData | null>(null);
 
   useEffect(() => {
-    // MCP Apps: host sends tool result via postMessage
-    const handler = (event: MessageEvent) => {
-      try {
-        // The host sends the tool result — parse the JSON payload
-        const msg = event.data;
-        if (msg?.type === "tool_result" && msg.payload?.data) {
-          setData(msg.payload.data);
-        } else if (msg?.data) {
-          // Direct data object
-          setData(msg.data);
-        } else if (typeof msg === "string") {
-          const parsed = JSON.parse(msg);
-          if (parsed.data) setData(parsed.data);
-        }
-      } catch {
-        // ignore non-JSON messages
-      }
-    };
-    window.addEventListener("message", handler);
-    return () => window.removeEventListener("message", handler);
+    return initMcpApp({
+      name: "swarmia-commit-hygiene",
+      onData: (d) => setData(d as unknown as HygieneData),
+    });
   }, []);
 
   if (!data) {
