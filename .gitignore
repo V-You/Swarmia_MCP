@@ -1,0 +1,17 @@
+# Cherry pick content
+# Then add content to README.md
+# Then ignore:
+BRAINSTORM.md
+NOTES.md
+PRD*.md
+
+# Must-haves
+.env
+.venv
+*cache*
+*.log
+*.tmp
+*.bak
+*.swp
+*.zip
+*.tar.gz

@@ -13,4 +13,26 @@ This project introduces a set of context-aware IDE Skills backed by a custom MCP
 
 ---
 
-actual README here
+# Usage
+
+Very clear, very concise usage instructions, with examples. Details latger
+
+```bash
+# Use case: Your Swarmia is up and running
+# Invoke troubleshoot Skill, it will use MCP to respond with facts inside a UI
+/swarmia-troubleshoot
+```
+
+```bash
+# Use case: Your Swarmia needs configuration or initial setup
+# Invoke troubleshoot Skill, it will use MCP to respond with facts inside a UI
+/swarmia-integrate
+```
+
+# Video
+
+include screencast
+
+# Details
+
+all details here
