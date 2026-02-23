@@ -1,13 +1,22 @@
-# Cherry pick content
-# Then add content to README.md
-# Then ignore:
+# Working notes (not part of deliverable)
 BRAINSTORM.md
 NOTES.md
 PRD*.md
 
-# Must-haves
+# Environment & secrets
 .env
-.venv
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# Node / MCP Apps (Phase 2)
+node_modules/
+assets/
+
+# General
 *cache*
 *.log
 *.tmp

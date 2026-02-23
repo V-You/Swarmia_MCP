@@ -1,0 +1,13 @@
+[project]
+name = "swarmia-mcp"
+version = "0.1.0"
+description = "Swarmia IDE Agent — context-aware MCP server for Swarmia integration"
+requires-python = ">=3.11"
+dependencies = [
+    "fastmcp>=2.0.0",
+    "httpx>=0.27.0",
+    "python-dotenv>=1.0.0",
+]
+
+[project.scripts]
+swarmia-mcp = "server:main"
