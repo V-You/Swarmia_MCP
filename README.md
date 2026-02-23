@@ -14,11 +14,11 @@ This project introduces a singular Skill, backed by a custom MCP Server. You shi
 
 I'm new. I'm unsure what to do. ``/swarmia`` tells me what's wrong and how to fix:
 
-<img src="assets/Screenshot_2026-02-22_195923.png" alt="Example 1: /swarmia tells me what to do" width="50%" />
+<img src="img/Screenshot_2026-02-22_195923.png" alt="Example 1: /swarmia tells me what to do" width="50%" />
 
 It works:
 
-<img src="assets/Screenshot_2026-02-22_201741.png" alt="Example 1: I do it and succeed" width="50%" />
+<img src="img/Screenshot_2026-02-22_201741.png" alt="Example 1: I do it and succeed" width="50%" />
 
 ---
 
