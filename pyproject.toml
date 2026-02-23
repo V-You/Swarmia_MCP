@@ -1,3 +1,7 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
 [project]
 name = "swarmia-mcp"
 version = "0.1.0"
@@ -10,4 +14,10 @@ dependencies = [
 ]
 
 [project.scripts]
-swarmia-mcp = "server:main"
+swarmia-mcp = "swarmia_mcp.server:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["swarmia_mcp"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"swarmia_mcp/docs_context.md" = "swarmia_mcp/docs_context.md"

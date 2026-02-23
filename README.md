@@ -2,15 +2,15 @@
 
 **Active documentation for Swarmia &ndash; directly in your IDE**
 
-[Static knowledge bases are dead](https://www.reddit.com/r/SaaS/comments/1q86tzp/the_concept_of_static_knowledge_bases_is_dying/). Developer tooling grows increasingly complex &ndash; and traditional KBs are not cutting it. **Today,** when developers face integration or troubleshooting issues with platforms like Swarmia, they are forced to break their workflow, context-switch to a web browser, click through documentation. This traditional "pull" model of support relies entirely on the developer to find generic instructions and translate them into their specific local environment. This process is **slow, inefficient, and highlights the need for documentation that converges with tooling.**
+[Static knowledge bases are dead](https://www.reddit.com/r/SaaS/comments/1q86tzp/the_concept_of_static_knowledge_bases_is_dying/). Developer tooling grows increasingly complex &ndash; and traditional knowledge bases are not cutting it. **Today,** when developers face integration or troubleshooting issues with platforms like Swarmia, they are forced to break their workflow, context-switch to a web browser, click through documentation. This traditional "pull" model of support relies entirely on the developer to find instructions and translate them into their specific local environment. It's **slow, inefficient, and highlights the need for documentation that converges with tooling.**
 
-This project introduces a singular Skill, backed by a custom MCP Server. You shift gears: from static documentation to interactive workflow. **Invoke `/swarmia`** directly within your IDE. The MCP server actively assesses your local environment &ndash; git history, branch names, CI/CD configuration &ndash; and provides actionable solutions:
+**This project** introduces a singular Skill, backed by a custom MCP Server. You shift gears: from static documentation to interactive workflow. **Invoke `/swarmia`** directly within your IDE. The MCP server actively assesses your local environment &ndash; git history, branch names, CI/CD configuration &ndash; and provides actionable solutions:
 
 * **Check commit hygiene** &ndash; verify branches and commits contain issue tracker IDs, validate against Linear API
 * **Scaffold deployment tracking** &ndash; detect your CI/CD framework and generate Swarmia webhook config
 * **Answer Swarmia questions** &ndash; query bundled documentation contextually, no browser needed
 
-## Example 1: 
+## Scenario 1: 
 
 I'm new. I'm unsure what to do. ``/swarmia`` tells me what's wrong and how to fix:
 
@@ -18,7 +18,7 @@ I'm new. I'm unsure what to do. ``/swarmia`` tells me what's wrong and how to fi
 
 It works:
 
-<kbd><img src="img/Screenshot_2026-02-22_201741.png" alt="Example 1: I do it and succeed" width="111px" /></kbd>
+<kbd><img src="img/Screenshot_2026-02-22_201741.png" alt="Example 1: I do it and succeed" width="123px" /></kbd>
 
 I have my doubts that my Linear API key is working correctly. Let's check:
 
@@ -28,6 +28,8 @@ I have my doubts that my Linear API key is working correctly. Let's check:
 ---
 
 # Usage
+
+TO DO: sort by IDE, currently VS Code only.
 
 ### 1. Prerequisites
 
@@ -43,7 +45,7 @@ echo 'LINEAR_API_KEY=lin_api_yourkey' > .env
 
 Add `.vscode/mcp.json` to your project. It tells VS Code how to start the MCP server.
 
-**Option A — Install from GitHub (recommended for other projects):**
+**Option A — Install from GitHub (recommended for your project):**
 
 ```json
 {
@@ -60,7 +62,7 @@ Add `.vscode/mcp.json` to your project. It tells VS Code how to start the MCP se
 
 `uvx` fetches the package directly from GitHub, builds it in an isolated environment, and runs the `swarmia-mcp` entry point. No cloning required &mdash; just commit this `mcp.json` to your repo and every developer gets the server automatically.
 
-**Option B — Local development (this repo):**
+**Option B — Local development (of this repo):**
 
 ```json
 {
@@ -74,9 +76,9 @@ Add `.vscode/mcp.json` to your project. It tells VS Code how to start the MCP se
 }
 ```
 
-When you invoke `/swarmia` in the chat panel, VS Code automatically spawns the server as a child process and connects to it over stdio. No manual server startup needed &mdash; `uv` resolves dependencies and creates an isolated environment on first run.
+When you invoke `/swarmia` in the chat, VS Code spawns the server as a child process and connects to it over stdio. No manual server startup needed &ndash; `uv` resolves dependencies and creates an isolated environment on first run.
 
-> **Skills:** The `/swarmia` and `/swarmia-admin` skills are not installed automatically with the MCP server. To enable them, copy the `.github/skills/swarmia/` and `.github/skills/swarmia-admin/` directories from this repository into your project's `.github/skills/` folder. Without these skills, the tools still work &mdash; but the LLM won't have the persona and routing instructions that make `/swarmia` invocations work.
+> **Skills:** The `/swarmia` and `/swarmia-admin` Skills are not installed automatically with the MCP server. To enable them, copy the `.github/skills/swarmia/` and `.github/skills/swarmia-admin/` directories from this repository into your project's `.github/skills/` folder. Without these Skills, the MCP tools still work &ndash; but the LLM won't have the persona and routing instructions that make `/swarmia` invocations work.
 
 ### 3. Use `/swarmia` in the chat
 
@@ -84,7 +86,7 @@ Type `/swarmia` followed by your question or request. The LLM routes your intent
 
 ### Manual testing (optional)
 
-For debugging or testing outside VS Code, you can run the server directly:
+For debugging or testing outside VS Code, run the server directly:
 
 ```bash
 uv run python -m swarmia_mcp
@@ -98,7 +100,7 @@ npx @modelcontextprotocol/inspector uv run python -m swarmia_mcp
 
 ### IDE Skills
 
-Two skills route your intent to the right tools:
+Two Skills route your intent to the right tools:
 
 | Skill | Persona | When to use |
 |---|---|---|
@@ -111,20 +113,20 @@ Two skills route your intent to the right tools:
 ```
 /swarmia Is my current branch going to be tracked properly?
 ```
-> Agent checks your local git &mdash; notices `fix-bug` lacks an `ENG-` prefix &mdash; replies:
+> Agent checks your local git &ndash; notices `fix-bug` lacks an `ENG-` prefix &ndash; replies:
 > *"Your branch is missing a Linear ID. Shall I rename it to `ENG-XXX-fix-bug`?"*
 
 **Audit recent commits for issue keys:**
 ```
 /swarmia Check my last 5 commits for Swarmia compliance
 ```
-> Agent calls `check_swarmia_commit_hygiene` &mdash; scans commit messages for `ENG-\d+` patterns &mdash; flags any missing issue keys and offers to help fix them via interactive rebase.
+> Agent calls `check_swarmia_commit_hygiene` &ndash; scans commit messages for `ENG-\d+` patterns &ndash; flags any missing issue keys and offers to help fix them via interactive rebase.
 
 **Set up DORA metrics / deployment tracking:**
 ```
 /swarmia-admin Set up deployment tracking for this repository
 ```
-> Agent calls `scaffold_swarmia_deployment` &mdash; detects GitHub Actions (or GitLab CI, Jenkins) &mdash; generates the exact webhook YAML and explains which secrets to add.
+> Agent calls `scaffold_swarmia_deployment` &ndash; detects GitHub Actions (or GitLab CI, Jenkins) &ndash; generates the exact webhook YAML and explains which secrets to add.
 
 **Ask a Swarmia question without leaving the IDE:**
 ```
@@ -164,7 +166,7 @@ IDE (VS Code)
 
 **Transport:** stdio (zero-latency local process). The server runs as a child process of the IDE &mdash; no network ports, no Docker.
 
-**Distribution:** Installable Python package. Use `uvx --from git+https://github.com/YOUR_ORG/Swarmia_MCP swarmia-mcp` to install from GitHub without cloning, or `uv run python -m swarmia_mcp` for local development.
+**Distribution:** Installable Python package. Use `uvx --from git+https://github.com/V-You/Swarmia_MCP swarmia-mcp` to install from GitHub without cloning, or `uv run python -m swarmia_mcp` for local development.
 
 ## Tools
 

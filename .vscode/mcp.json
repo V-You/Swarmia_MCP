@@ -3,7 +3,7 @@
     "swarmia": {
       "type": "stdio",
       "command": "uv",
-      "args": ["run", "server.py"]
+      "args": ["run", "python", "-m", "swarmia_mcp"]
     }
   }
 }

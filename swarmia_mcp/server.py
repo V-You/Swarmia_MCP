@@ -1,11 +1,11 @@
 """
-Swarmia MCP Server — Phase 1 (Single-file MVP)
+Swarmia MCP Server
 
 A local MCP server that acts as an intelligent pair programmer for Swarmia integration.
 Tools: check_swarmia_commit_hygiene, scaffold_swarmia_deployment, query_swarmia_docs
 
-Run: uv run server.py
-Test: npx @modelcontextprotocol/inspector uv run server.py
+Run: uv run python -m swarmia_mcp
+Test: npx @modelcontextprotocol/inspector uv run python -m swarmia_mcp
 """
 
 from __future__ import annotations
