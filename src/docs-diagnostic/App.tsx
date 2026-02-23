@@ -27,7 +27,7 @@ export function App() {
     return (
       <div style={styles.container}>
         <h3 style={styles.heading}>📋 Swarmia Docs Diagnostic</h3>
-        <p style={{ color: "#888" }}>Waiting for data from tool...</p>
+        <p style={{ color: "var(--sw-fg-faint)" }}>Waiting for data from tool...</p>
       </div>
     );
   }
@@ -50,7 +50,7 @@ export function App() {
 
       {/* Question & Answer */}
       <div style={styles.qaSection}>
-        <div style={{ fontSize: 13, color: "#666", marginBottom: 4 }}>
+        <div style={{ fontSize: 13, color: "var(--sw-fg-muted)", marginBottom: 4 }}>
           Question:
         </div>
         <div style={{ fontWeight: 600, marginBottom: 8 }}>{data.query}</div>
@@ -76,7 +76,7 @@ export function App() {
                     {statusIcons[integ.status]}
                   </span>
                 </div>
-                <div style={{ fontSize: 12, color: "#666", marginTop: 4 }}>
+                <div style={{ fontSize: 12, color: "var(--sw-fg-muted)", marginTop: 4 }}>
                   {integ.detail}
                 </div>
               </div>
@@ -93,19 +93,19 @@ const styles: Record<string, React.CSSProperties> = {
     padding: 16,
     fontFamily: "system-ui, -apple-system, sans-serif",
     maxWidth: 640,
-    color: "#1a1a1a",
+    color: "var(--sw-fg)",
   },
   heading: { margin: "0 0 12px", fontSize: 16 },
   qaSection: {
     padding: 12,
-    background: "#f5f5f5",
+    background: "var(--sw-bg-surface)",
     borderRadius: 6,
   },
   answerBox: {
     padding: 10,
-    background: "#fff",
+    background: "var(--sw-bg-card)",
     borderRadius: 4,
-    border: "1px solid #e5e5e5",
+    border: "1px solid var(--sw-border)",
     fontSize: 13,
     lineHeight: 1.5,
   },
@@ -116,8 +116,8 @@ const styles: Record<string, React.CSSProperties> = {
   },
   card: {
     padding: 10,
-    background: "#fafafa",
-    border: "1px solid #e5e5e5",
+    background: "var(--sw-bg-card)",
+    border: "1px solid var(--sw-border)",
     borderRadius: 6,
   },
   dot: {

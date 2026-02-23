@@ -146,10 +146,56 @@ export function initMcpApp(opts: {
   return () => window.removeEventListener("message", handler);
 }
 
+// ---- theme tokens -----------------------------------------------------
+
+const LIGHT_TOKENS: Record<string, string> = {
+  "--sw-fg": "#1a1a1a",
+  "--sw-fg-muted": "#666",
+  "--sw-fg-faint": "#888",
+  "--sw-bg": "#ffffff",
+  "--sw-bg-surface": "#f5f5f5",
+  "--sw-bg-card": "#fafafa",
+  "--sw-border": "#e5e5e5",
+  "--sw-row-border": "#eee",
+  "--sw-header-border": "#ddd",
+  "--sw-progress-bg": "#e5e5e5",
+};
+
+const DARK_TOKENS: Record<string, string> = {
+  "--sw-fg": "#e0e0e0",
+  "--sw-fg-muted": "#a0a0a0",
+  "--sw-fg-faint": "#888",
+  "--sw-bg": "#1e1e1e",
+  "--sw-bg-surface": "#2a2a2a",
+  "--sw-bg-card": "#252525",
+  "--sw-border": "#404040",
+  "--sw-row-border": "#333",
+  "--sw-header-border": "#444",
+  "--sw-progress-bg": "#333",
+};
+
+function applyThemeTokens(theme: "light" | "dark") {
+  const tokens = theme === "dark" ? DARK_TOKENS : LIGHT_TOKENS;
+  const root = document.documentElement;
+  for (const [key, value] of Object.entries(tokens)) {
+    root.style.setProperty(key, value);
+  }
+}
+
+/** Inject fallback tokens based on prefers-color-scheme before host context arrives. */
+function injectFallbackTheme() {
+  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  applyThemeTokens(prefersDark ? "dark" : "light");
+}
+
+// Apply fallback immediately so widgets have theme tokens on first render
+injectFallbackTheme();
+
 /** Apply host theme CSS variables. */
 function applyHostContext(ctx: HostContext) {
   if (ctx.theme) {
     document.documentElement.style.colorScheme = ctx.theme;
+    applyThemeTokens(ctx.theme);
   }
   if (ctx.styles?.variables) {
     const root = document.documentElement;

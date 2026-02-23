@@ -3,7 +3,10 @@
     "swarmia": {
       "type": "stdio",
       "command": "uv",
-      "args": ["run", "python", "-m", "swarmia_mcp"]
+      "args": ["run", "python", "-m", "swarmia_mcp"],
+      "env": {
+        "PATH": "${env:HOME}/.local/bin:${env:PATH}"
+      }
     }
   }
 }

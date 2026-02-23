@@ -23,7 +23,7 @@ export function App() {
     return (
       <div style={styles.container}>
         <h3 style={styles.heading}>🚀 Deployment Scaffold</h3>
-        <p style={{ color: "#888" }}>Waiting for data from tool...</p>
+        <p style={{ color: "var(--sw-fg-faint)" }}>Waiting for data from tool...</p>
       </div>
     );
   }
@@ -42,7 +42,7 @@ export function App() {
             None detected
           </span>
         )}
-        <span style={{ marginLeft: 12, color: "#666", fontSize: 13 }}>
+        <span style={{ marginLeft: 12, color: "var(--sw-fg-muted)", fontSize: 13 }}>
           App: <code>{data.app_name}</code>
         </span>
       </div>
@@ -75,12 +75,12 @@ const styles: Record<string, React.CSSProperties> = {
     padding: 16,
     fontFamily: "system-ui, -apple-system, sans-serif",
     maxWidth: 700,
-    color: "#1a1a1a",
+    color: "var(--sw-fg)",
   },
   heading: { margin: "0 0 12px", fontSize: 16 },
   detectedRow: {
     padding: 8,
-    background: "#f5f5f5",
+    background: "var(--sw-bg-surface)",
     borderRadius: 6,
     display: "flex",
     alignItems: "center",

@@ -32,7 +32,7 @@ export function App() {
     return (
       <div style={styles.container}>
         <h3 style={styles.heading}>🔍 Commit Hygiene Check</h3>
-        <p style={{ color: "#888" }}>Waiting for data from tool...</p>
+        <p style={{ color: "var(--sw-fg-faint)" }}>Waiting for data from tool...</p>
       </div>
     );
   }
@@ -74,7 +74,7 @@ export function App() {
             />
           )}
         </div>
-        <small style={{ color: "#666" }}>
+        <small style={{ color: "var(--sw-fg-muted)" }}>
           {passCount}/{total} commits have issue keys
         </small>
       </div>
@@ -131,13 +131,13 @@ const styles: Record<string, React.CSSProperties> = {
     padding: 16,
     fontFamily: "system-ui, -apple-system, sans-serif",
     maxWidth: 640,
-    color: "#1a1a1a",
+    color: "var(--sw-fg)",
   },
   heading: { margin: "0 0 12px", fontSize: 16 },
   branchRow: {
     marginBottom: 12,
     padding: 8,
-    background: "#f5f5f5",
+    background: "var(--sw-bg-surface)",
     borderRadius: 6,
   },
   progressBar: {
@@ -146,10 +146,10 @@ const styles: Record<string, React.CSSProperties> = {
     height: 8,
     borderRadius: 4,
     overflow: "hidden",
-    background: "#e5e5e5",
+    background: "var(--sw-progress-bg)",
   },
   table: { width: "100%", borderCollapse: "collapse" as const, fontSize: 13 },
-  headerRow: { borderBottom: "2px solid #ddd", textAlign: "left" as const },
-  row: { borderBottom: "1px solid #eee" },
+  headerRow: { borderBottom: "2px solid var(--sw-header-border)", textAlign: "left" as const },
+  row: { borderBottom: "1px solid var(--sw-row-border)" },
   cell: { padding: "6px 8px" },
 };

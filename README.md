@@ -18,9 +18,9 @@
 
 ## Scenario 2: 
 
-| ``/swarmia`` I just joined the team. <br>Is my local setup ready? | Something | Something |
+| ``/swarmia`` I just joined the team. <br>Is my local setup ready? (standard UI) | ``/swarmia`` I just joined the team. <br>Is my local setup ready? (rich UI) | ``/swarmia`` Check my last 5 commits for compliance <br>(rich UI) |
 | :---: | :----: | :---: |
-| <kbd><img src="img/Screenshot_2026-02-23_023512.png" alt="Scenario 2: I just joined the team" width="99px" /></kbd> | <kbd>img</kbd> | <kbd>img</kbd> |
+| <kbd><img src="img/Screenshot_2026-02-23_023512.png" alt="Scenario 2: I just joined the team" width="99px" /></kbd> | <kbd><img src="img/Screenshot_2026-02-23_125741.png" alt="Scenario 2: Check last 5 commits - Rich pt 1" width="99px" /></kbd><br><kbd><img src="img/Screenshot_2026-02-23_125901.png" alt="Scenario 2: Check last 5 commits - Rich pt 2" width="99px" /></kbd> | <kbd><img src="img/Screenshot_2026-02-23_124347.png" alt="Scenario 2: Check last 5 commits" width="99px" /></kbd> |
 
 
 
@@ -229,3 +229,11 @@ Covers: getting started, deployment tracking, DORA metrics, cycle time, investme
 │       └── swarmia-admin/SKILL.md      # /swarmia-admin skill definition (copy to your project)
 └── README.md
 ```
+
+---
+
+# Errors
+
+### uv not found
+> ``2026-02-23 12:18:17.011 [info] Connection state: Error spawn uv ENOENT``
+Cause 1: PATH mismatch. Solution 1: Adapt the ``command`` value in mcp.json (path to uv). Solution 2: Adapt or add ``env.PATH`` in mcp.json.
