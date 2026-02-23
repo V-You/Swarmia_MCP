@@ -70,9 +70,19 @@ Add `.vscode/mcp.json` to your project. It tells VS Code how to start the MCP se
 
 When you invoke `/swarmia` in the chat, VS Code spawns the server as a child process and connects to it over stdio. No manual server startup needed &ndash; `uv` resolves dependencies and creates an isolated environment on first run.
 
-> **Skills:** The `/swarmia` and `/swarmia-admin` Skills are not installed automatically with the MCP server. To enable them, copy the `.github/skills/swarmia/` and `.github/skills/swarmia-admin/` directories from this repository into your project's `.github/skills/` folder. Without these Skills, the MCP tools still work &ndash; but the LLM won't have the persona and routing instructions that make `/swarmia` invocations work.
 
-### 3. Use `/swarmia` in the chat
+### 3. IDE Skills
+
+Two Skills route your intent to the right tools:
+
+| Skill | Persona | When to use |
+|---|---|---|
+| `/swarmia` | Developer pair programmer | Troubleshooting, checking branch/commit hygiene, general Swarmia questions |
+| `/swarmia-admin` | Infrastructure engineer | Setting up deployment pipelines, configuring DORA metrics, initial integration |
+
+> The `/swarmia` and `/swarmia-admin` **Skills are not installed automatically** with the MCP server. Copy the `.github/skills/swarmia/` and `.github/skills/swarmia-admin/` directories from this repository into your project's `.github/skills/` folder. Without these Skills, the MCP tools still work &ndash; but your LLM won't have the persona and routing instructions that make `/swarmia` invocations work.
+
+### 4. Use `/swarmia` in the chat
 
 Type `/swarmia` followed by your question or request. The LLM routes your intent to the right tool.
 
@@ -90,14 +100,6 @@ Or use MCP Inspector to call tools interactively:
 npx @modelcontextprotocol/inspector uv run python -m swarmia_mcp
 ```
 
-### IDE Skills
-
-Two Skills route your intent to the right tools:
-
-| Skill | Persona | When to use |
-|---|---|---|
-| `/swarmia` | Developer pair programmer | Troubleshooting, checking branch/commit hygiene, general Swarmia questions |
-| `/swarmia-admin` | Infrastructure engineer | Setting up deployment pipelines, configuring DORA metrics, initial integration |
 
 ### Example interactions
 
