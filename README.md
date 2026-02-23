@@ -12,9 +12,9 @@
 
 ## Scenario 1: 
 
-| I'm unsure what to do. ``/swarmia`` tells me what is wrong and how to fix it: | It works. | I'm unsure if my Linear API key is ok. Let's check: |
-| --- | ---- | --- |
-| <kbd><img src="img/Screenshot_2026-02-22_195923.png" alt="Example 1: /swarmia tells me what to do" width="99px" /></kbd> | <kbd><img src="img/Screenshot_2026-02-22_201741.png" alt="Example 1: I do it and succeed" width="99px" /></kbd> | <kbd><img src="img/Screenshot_2026-02-22_203609.png" alt="Is my API key ok? Yep, sure is." width="99px" /></kbd> |
+| I'm unsure what to do. ``/swarmia`` shows me what to fix: | It works. | Is my Linear API key ok? Let's check: |
+| :---: | :----: | :---: |
+| <img src="img/Screenshot_2026-02-22_195923.png" alt="Example 1: /swarmia tells me what to do" width="99px" style="border:3px solid rgb(98, 82, 226);border-radius:3px" /> | <img src="img/Screenshot_2026-02-22_201741.png" alt="Example 1: I do it and succeed" width="99px" style="border:3px solid rgb(98, 82, 226);border-radius:3px" /> | <img src="img/Screenshot_2026-02-22_203609.png" alt="Is my API key ok? Yep, sure is." width="99px" style="border:3px solid rgb(98, 82, 226);border-radius:3px" /> |
 
 
 
