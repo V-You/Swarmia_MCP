@@ -51,13 +51,15 @@ Add `.vscode/mcp.json` to your project. It tells VS Code how to start the MCP se
       "type": "stdio",
       "command": "uvx",
       "args": ["--from", "git+https://github.com/YOUR_ORG/Swarmia_MCP", "swarmia-mcp"],
-      "envFile": "${workspaceFolder}/.env"
+      "env": {
+        "PATH": "${env:HOME}/.local/bin:${env:PATH}"
+      }
     }
   }
 }
 ```
 
-`uvx` fetches the package directly from GitHub, builds it in an isolated environment, and runs the `swarmia-mcp` entry point. No cloning required &mdash; just commit this `mcp.json` to your repo and every developer gets the server automatically.
+`uvx` fetches the package directly from GitHub, builds it in an isolated environment, and runs the `swarmia-mcp` entry point. No cloning required &ndash; just commit this `mcp.json` to your repo and every developer gets the server automatically.
 
 **Option B — Local development (of this repo):**
 
@@ -67,7 +69,10 @@ Add `.vscode/mcp.json` to your project. It tells VS Code how to start the MCP se
     "swarmia": {
       "type": "stdio",
       "command": "uv",
-      "args": ["run", "python", "-m", "swarmia_mcp"]
+      "args": ["run", "python", "-m", "swarmia_mcp"],
+      "env": {
+        "PATH": "${env:HOME}/.local/bin:${env:PATH}"
+      }
     }
   }
 }
@@ -163,9 +168,9 @@ IDE (VS Code)
     └── query_swarmia_docs            →  bundled docs + diagnostics → ui://docs-diagnostic.html
 ```
 
-**Transport:** stdio (zero-latency local process). The server runs as a child process of the IDE &mdash; no network ports, no Docker.
+**Transport:** stdio (zero-latency local process). The server runs as a child process of the IDE &ndash; no network ports, no Docker.
 
-**MCP Apps:** Each tool declares a `ui://` resource via FastMCP's native `AppConfig`. The host (VS Code) fetches self-contained HTML via `resources/read` and renders it inline. No HTTP server needed &mdash; widget HTML with inlined React bundles is served directly over the MCP protocol.
+**MCP Apps:** Each tool declares a `ui://` resource via FastMCP's native `AppConfig`. The host (VS Code) fetches self-contained HTML via `resources/read` and renders it inline. No HTTP server needed &ndash; widget HTML with inlined React bundles is served directly over the MCP protocol.
 
 **Distribution:** Installable Python package. Use `uvx --from git+https://github.com/V-You/Swarmia_MCP swarmia-mcp` to install from GitHub without cloning, or `uv run python -m swarmia_mcp` for local development.
 
@@ -174,14 +179,14 @@ IDE (VS Code)
 ### `check_swarmia_commit_hygiene`
 Reads local `git log` and `git branch`, regex-scans for issue tracker IDs (e.g. `ENG-123`), and optionally validates each issue against the Linear GraphQL API. Returns structured JSON with both text and data for the interactive widget.
 
-- **With `LINEAR_API_KEY`:** Full validation &mdash; fetches issue title, status, and confirms assignment to the current user
+- **With `LINEAR_API_KEY`:** Full validation &ndash; fetches issue title, status, and confirms assignment to the current user
 - **Without `LINEAR_API_KEY`:** Graceful degradation to regex-only matching with a note to add the key
 - **Widget:** Interactive commit table with progress bar and Linear verification status
 
 ### `scaffold_swarmia_deployment`
 Detects the CI/CD framework (GitHub Actions, GitLab CI, Jenkins) by scanning the workspace, then generates the exact webhook configuration for Swarmia's Deployment API (`POST https://hook.swarmia.com/deployments`).
 
-- Pure generation &mdash; returns YAML/config as text, never writes to the filesystem
+- Pure generation &ndash; returns YAML/config as text, never writes to the filesystem
 - The IDE's native file-edit tools handle applying the diff
 - **Widget:** Configuration preview with CI provider badge, YAML snippet, and setup steps
 

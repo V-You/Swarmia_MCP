@@ -30,3 +30,4 @@ If a command requires reading the local file system or running a `git` command, 
 - DRY
 - Brief comments, if even
 - Never use m-dash, use n-dash instead (surrounded by whitespace)
+- No emojis
