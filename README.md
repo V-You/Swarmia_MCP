@@ -29,7 +29,7 @@ I have my doubts that my Linear API key is working correctly. Let's check:
 
 # Usage
 
-### Prerequisites
+### 1. Prerequisites
 
 ```bash
 # Install uv (if not already installed)
@@ -39,13 +39,41 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 echo 'LINEAR_API_KEY=lin_api_yourkey' > .env
 ```
 
-### Run the server
+### 2. Open the repo in VS Code
+
+That's it. The included `.vscode/mcp.json` tells VS Code how to start the MCP server:
+
+```json
+{
+  "servers": {
+    "swarmia": {
+      "type": "stdio",
+      "command": "uv",
+      "args": ["run", "server.py"]
+    }
+  }
+}
+```
+
+When you invoke `/swarmia` in the chat panel, VS Code automatically spawns `uv run server.py` as a child process and connects to it over stdio. No manual server startup needed &mdash; `uv` resolves dependencies and creates an isolated environment on first run.
+
+### 3. Use `/swarmia` in the chat
+
+Type `/swarmia` followed by your question or request. The LLM routes your intent to the right tool.
+
+### Manual testing (optional)
+
+For debugging or testing outside VS Code, you can run the server directly:
 
 ```bash
 uv run server.py
 ```
 
-That's it. `uv` reads `pyproject.toml`, resolves dependencies, and creates an isolated environment automatically. No manual virtualenv or Docker needed.
+Or use MCP Inspector to call tools interactively:
+
+```bash
+npx @modelcontextprotocol/inspector uv run server.py
+```
 
 ### IDE Skills
 
@@ -89,11 +117,7 @@ Two skills route your intent to the right tools:
 ```
 > Agent chains tools: checks your git history for missing issue keys, then explains that Swarmia requires PR&ndash;issue linking to categorize work into investment categories.
 
-### Testing with MCP Inspector
 
-```bash
-npx @modelcontextprotocol/inspector uv run server.py
-```
 
 ---
 
@@ -154,6 +178,8 @@ Covers: getting started, deployment tracking, DORA metrics, cycle time, investme
 ├── docs_context.md                     # Bundled Swarmia documentation
 ├── pyproject.toml                      # Dependencies & project metadata
 ├── .env                                # API keys (gitignored)
+├── .vscode/
+│   └── mcp.json                        # MCP server config (VS Code auto-starts)
 ├── .github/
 │   ├── copilot_instructions.md         # Developer instructions for this repo
 │   └── skills/
