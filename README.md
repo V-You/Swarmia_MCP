@@ -237,8 +237,12 @@ Covers: getting started, deployment tracking, DORA metrics, cycle time, investme
 
 ---
 
-# Errors
+# Troubleshooting
 
 ### uv not found
+
 > ``2026-02-23 12:18:17.011 [info] Connection state: Error spawn uv ENOENT``
-Cause 1: PATH mismatch. Solution 1: Adapt the ``command`` value in mcp.json (path to uv). Solution 2: Adapt or add ``env.PATH`` in mcp.json.
+
+Cause 1: PATH mismatch.
+- Solution 1: Adapt the ``command`` value in mcp.json (path to uv). 
+- Solution 2: Adapt or add ``env.PATH`` in mcp.json.
