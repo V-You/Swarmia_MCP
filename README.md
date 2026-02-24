@@ -200,7 +200,7 @@ Reads the bundled `docs_context.md` (curated from the Swarmia help center) and r
 
 | Variable | Required | Purpose |
 |---|---|---|
-| `LINEAR_API_KEY` | No (recommended) | Enables full Linear issue validation in commit hygiene checks |
+| `LINEAR_API_KEY` | No | Linear issue validation in commit hygiene checks |
 | `SWARMIA_DEPLOYMENTS_AUTHORIZATION` | No | Referenced in generated CI/CD config snippets |
 
 ## Project Structure
