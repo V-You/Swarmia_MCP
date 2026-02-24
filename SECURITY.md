@@ -8,7 +8,7 @@
 | **2** | CSS injection via `ctx.styles.css.fonts` into `<style>` element | Sanitize or allowlist CSS properties from host context | SKIP FOR NOW: "safe CSS" research needed, host VS Code = low risk |
 | **3** | No rate limiting on Linear API calls - one request per issue ID | Batch the GraphQL query or cap the number of IDs validated | SKIP FOR NOW: needs design decisions (batch query format, cap) |
 | **3** | `workflow_name` user-controlled, injected into YAML `[{workflow_name}]` | Validate against a safe regex pattern (e.g. `[a-zA-Z0-9 _-]+`) | 2026-02-23 |
-| **3** | `load_dotenv()` runs unconditionally, may load unrelated .env | Document expected env vars; consider explicit path for .env loading | SKIP FOR NOW: changing to explicit path could break CWD-based .env, needs testing |
+| **3** | `load_dotenv()` runs unconditionally, may load unrelated .env | Would be caused by user, consider explicit path for .env loading | SKIP FOR NOW: changing to explicit path could break CWD-based .env, needs testing |
 | **4** | No auth on MCP server (stdio-based, local only) | N/A | By design |
 | **4** | docs_context.md is a static snapshot (2026-02-22) | Content may drift from live docs | No SSRF risk |
 | **4** | SKILL.md instructs LLM to offer git rebase / file writes | Commit messages could contain prompt injection, consider sanitizing tool output | Out of scope |
