@@ -245,3 +245,7 @@ Reads the bundled `docs_context.md` (curated from the Swarmia help center) and r
 Cause 1: PATH mismatch.
 - Solution 1: Adapt the ``command`` value in mcp.json (path to uv). 
 - Solution 2: Adapt or add ``env.PATH`` in mcp.json.
+
+## Duplicate output
+
+A prompt like "Check my last 5 commits" may show some results twice: once in the MCP Apps widget (rich UI), and a second time rendered by the agent. This happens mostly because MCP Apps is a relatively new feature and strategies to avoid this duplication are not formalized. Mitigation implemented here: Tools return advise (widget shows X, focus on Y) and Skills contain note to avoid duplication. (Better: Explicitly split concerns, widgets only show data and LLMs only do analysis/advise.)

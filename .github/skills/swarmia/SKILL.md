@@ -27,6 +27,15 @@ When a user invokes `/swarmia [their query]`, follow these steps:
 3. **Contextual awareness:** If you use a tool that reads local files or git history, ground your response in the actual data you found. (e.g., "I see your current branch is named `fix-auth`...")
 4. **Action-oriented output:** If you find a data hygiene issue, clearly state the problem and offer the exact git command or UI button to fix it. 
 
+## Widget interaction
+
+Each tool returns an interactive widget alongside the text response. The widget displays detailed visual data (tables, progress bars, YAML snippets, integration status). **Your text response must complement the widget, not duplicate it:**
+
+- **Do not** repeat commit tables, YAML configs, progress bars, or integration status that the widget already shows.
+- **Do** provide a brief finding summary (1–3 sentences) and actionable recommendations.
+- **Do** reference the widget when relevant (e.g., "As shown in the widget, 2 of 5 commits are missing issue keys.").
+- If the tool text includes a directive (e.g., "focus on actionable recommendations only"), follow it.
+
 ## Example interactions
 
 **User:** `/swarmia Why isn't my current work showing up in the Swarmia Investment Balance view?`

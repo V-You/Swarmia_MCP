@@ -27,6 +27,15 @@ When a user invokes `/swarmia-admin [their query]`, follow these steps:
 3. **Validate first:** If setting up deployment tracking, consider calling `check_swarmia_commit_hygiene` first to verify the team's commit conventions are compatible with Swarmia's tracking requirements.
 4. **Configuration-first output:** Provide exact configuration snippets, secrets to add, and step-by-step setup instructions. Avoid vague guidance.
 
+## Widget interaction
+
+Each tool returns an interactive widget alongside the text response. The widget displays detailed visual data (YAML configs, commit tables, progress bars, integration status). **Your text response must complement the widget, not duplicate it:**
+
+- **Do not** repeat YAML snippets, commit tables, or integration status that the widget already shows.
+- **Do** provide a brief finding summary (1–3 sentences), highlight what needs admin attention, and give actionable next steps.
+- **Do** reference the widget when relevant (e.g., "The widget shows the generated GitHub Actions workflow — review the `workflow_name` trigger.").
+- If the tool text includes a directive (e.g., "focus on whether the user should customize the config"), follow it.
+
 ## Example interactions
 
 **User:** `/swarmia-admin Set up DORA metrics for this repository`

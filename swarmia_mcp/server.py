@@ -198,7 +198,6 @@ def check_swarmia_commit_hygiene(num_commits: int = 10) -> str:
         num_commits: Number of recent commits to check (default: 10).
     """
     logger.info("check_swarmia_commit_hygiene: scanning last %d commits", num_commits)
-    lines: list[str] = []
 
     # --- Get branch name ---
     try:
@@ -213,26 +212,15 @@ def check_swarmia_commit_hygiene(num_commits: int = 10) -> str:
         branch = "(detached HEAD)"
 
     branch_ids = ISSUE_KEY_PATTERN.findall(branch)
-    lines.append(f"**Current branch:** `{branch}`")
-    if branch_ids:
-        lines.append(f"  ✅ Issue key(s) found in branch name: {', '.join(branch_ids)}")
-    else:
-        lines.append(
-            "  ⚠️ No issue key found in branch name. "
-            "Swarmia tracks work by linking branches to issue IDs (e.g. `ENG-123-fix-auth`). "
-            "Consider renaming: `git branch -m <ENG-XXX>-{current-name}`"
-        )
 
     # --- Get commits ---
     try:
         log_output = _run_git("log", f"-n{num_commits}", "--oneline")
     except RuntimeError:
-        lines.append("\n⚠️ No commits found in this repository yet.")
-        return "\n".join(lines)
+        return "No commits found in this repository yet."
 
     if not log_output:
-        lines.append("\n⚠️ No commits found in this repository yet.")
-        return "\n".join(lines)
+        return "No commits found in this repository yet."
 
     commits = []
     for line in log_output.splitlines():
@@ -257,56 +245,52 @@ def check_swarmia_commit_hygiene(num_commits: int = 10) -> str:
         viewer_id = _get_linear_viewer_id()
         linear_data = _query_linear_issues(list(all_ids))
         if not linear_data and not viewer_id:
-            lines.append(
-                "\n⚠️ LINEAR_API_KEY is set but the Linear API returned no data. "
-                "The key may be invalid. Falling back to regex-only validation."
-            )
             linear_available = False
 
-    # --- Format commit results ---
-    lines.append(f"\n**Last {len(commits)} commits:**")
-    for c in commits:
-        status = "✅" if c["ids"] else "⚠️"
-        id_str = ", ".join(c["ids"]) if c["ids"] else "no issue key"
-        lines.append(f"  {status} `{c['sha']}` {c['message']} [{id_str}]")
+    # --- Build directive summary for LLM (widget shows the full data) ---
+    summary_lines: list[str] = []
 
-    # --- Linear details ---
-    if linear_available and linear_data:
-        lines.append("\n**Linear issue verification:**")
-        for issue_id, info in linear_data.items():
-            assignee_match = ""
-            if viewer_id and info.get("assignee_id"):
-                if info["assignee_id"] == viewer_id:
-                    assignee_match = " (assigned to you ✅)"
-                else:
-                    assignee_match = " (⚠️ assigned to someone else)"
-            elif viewer_id and not info.get("assignee_id"):
-                assignee_match = " (unassigned)"
-            lines.append(
-                f"  • **{issue_id}**: {info['title']} — *{info['state']}*{assignee_match}"
-            )
-
-        unverified = all_ids - set(linear_data.keys())
-        if unverified:
-            lines.append(
-                f"\n  ⚠️ Could not verify: {', '.join(sorted(unverified))}. "
-                "These may belong to a different team or workspace."
-            )
-    elif not linear_available and all_ids:
-        lines.append(
-            "\n*Regex validation passed. Add LINEAR_API_KEY to .env to verify "
-            "issue status directly against your tracker.*"
+    # Branch status
+    if branch_ids:
+        summary_lines.append(f"Branch `{branch}` has issue key(s): {', '.join(branch_ids)}.")
+    else:
+        summary_lines.append(
+            f"Branch `{branch}` has no issue key. "
+            "Suggest renaming: `git branch -m <ENG-XXX>-{{name}}`."
         )
 
-    # --- Summary ---
+    # Commit summary
     missing = [c for c in commits if not c["ids"]]
     if missing:
-        lines.append(
-            f"\n**Summary:** {len(missing)}/{len(commits)} commits are missing issue keys. "
-            "These commits won't be tracked by Swarmia."
+        summary_lines.append(
+            f"{len(missing)}/{len(commits)} commits are missing issue keys — "
+            "these won't be tracked by Swarmia."
         )
     else:
-        lines.append(f"\n**Summary:** All {len(commits)} commits have issue keys. ✅")
+        summary_lines.append(f"All {len(commits)} commits have issue keys. ✅")
+
+    # Linear status
+    if linear_available and linear_data:
+        verified_ids = ", ".join(linear_data.keys())
+        summary_lines.append(f"Linear verified: {verified_ids}.")
+        unverified = all_ids - set(linear_data.keys())
+        if unverified:
+            summary_lines.append(
+                f"Could not verify: {', '.join(sorted(unverified))} "
+                "(may belong to a different workspace)."
+            )
+    elif not linear_available and all_ids:
+        summary_lines.append(
+            "No LINEAR_API_KEY — regex-only validation. "
+            "Add LINEAR_API_KEY to .env for full issue verification."
+        )
+
+    summary_lines.append(
+        "\nThe widget shows the full commit table, progress bar, and Linear verification. "
+        "Focus your response on actionable recommendations only — do not repeat the commit list or table."
+    )
+
+    text = "\n".join(summary_lines)
 
     # Build structured data for the widget
     widget_linear = {}
@@ -320,14 +304,16 @@ def check_swarmia_commit_hygiene(num_commits: int = 10) -> str:
             "assigned_to_you": assigned_to_you,
         }
 
+    summary_text = summary_lines[1] if len(summary_lines) > 1 else ""
+
     return ToolResult(
-        content=[TextContent(type="text", text="\n".join(lines))],
+        content=[TextContent(type="text", text=text)],
         structured_content={
             "branch": branch,
             "branch_ids": branch_ids,
             "commits": commits,
             "linear_data": widget_linear,
-            "summary": lines[-1] if lines else "",
+            "summary": summary_text,
         },
         meta={},
     )
@@ -428,91 +414,53 @@ def scaffold_swarmia_deployment(
     has_gitlab = (workspace / ".gitlab-ci.yml").is_file()
     has_jenkins = (workspace / "Jenkinsfile").is_file()
 
-    lines: list[str] = []
+    # --- Build the full YAML snippets (needed for structured_content) ---
+    yaml_snippet_raw = ""
+    setup_steps_raw: list[str] = []
 
     if has_github:
-        lines.append("**Detected CI/CD:** GitHub Actions\n")
-        lines.append(
-            "Add this as a new workflow file (e.g. `.github/workflows/swarmia-deploy.yml`):\n"
+        yaml_snippet_raw = GITHUB_ACTIONS_TEMPLATE.format(
+            app_name=app_name, workflow_name=workflow_name
         )
-        lines.append("```yaml")
-        lines.append(
-            GITHUB_ACTIONS_TEMPLATE.format(
-                app_name=app_name, workflow_name=workflow_name
-            )
-        )
-        lines.append("```")
-        lines.append(
-            "\n**Setup steps:**\n"
-            "1. Add `SWARMIA_DEPLOYMENTS_AUTHORIZATION` to your GitHub repository secrets "
-            "(Settings → Secrets and variables → Actions)\n"
-            f'2. Verify the `workflow_name` matches your deploy workflow (currently: `"{workflow_name}"`)\n'
-            "3. Commit and push this workflow file"
-        )
+        setup_steps_raw = [
+            "Add `SWARMIA_DEPLOYMENTS_AUTHORIZATION` to your GitHub repository secrets "
+            "(Settings → Secrets and variables → Actions)",
+            f'Verify the `workflow_name` matches your deploy workflow (currently: `"{workflow_name}"`)',
+            "Commit and push this workflow file",
+        ]
     elif has_gitlab:
-        lines.append("**Detected CI/CD:** GitLab CI\n")
-        lines.append("Add this job to your `.gitlab-ci.yml`:\n")
-        lines.append("```yaml")
-        lines.append(GITLAB_CI_TEMPLATE.format(app_name=app_name))
-        lines.append("```")
-        lines.append(
-            "\n**Setup steps:**\n"
-            "1. Add `SWARMIA_DEPLOYMENTS_AUTHORIZATION` as a CI/CD variable "
-            "(Settings → CI/CD → Variables)\n"
-            "2. Commit and push the updated `.gitlab-ci.yml`"
-        )
+        yaml_snippet_raw = GITLAB_CI_TEMPLATE.format(app_name=app_name)
+        setup_steps_raw = [
+            "Add `SWARMIA_DEPLOYMENTS_AUTHORIZATION` as a CI/CD variable "
+            "(Settings → CI/CD → Variables)",
+            "Commit and push the updated `.gitlab-ci.yml`",
+        ]
     elif has_jenkins:
-        lines.append(
-            "**Detected CI/CD:** Jenkins (Jenkinsfile found)\n\n"
-            "Swarmia's deployment webhook is a simple HTTP POST. Add this stage "
-            "to your Jenkinsfile after your deployment step:\n"
+        yaml_snippet_raw = (
+            f"stage('Notify Swarmia') {{\n"
+            f"    steps {{\n"
+            f"        sh '''\n"
+            f"            curl -X POST https://hook.swarmia.com/deployments \\\n"
+            f'              -H "Authorization: $SWARMIA_DEPLOYMENTS_AUTHORIZATION" \\\n'
+            f'              -H "Content-Type: application/json" \\\n'
+            f"              -d '{{\n"
+            f'                \"version\": \"\'$GIT_COMMIT\'\",\n'
+            f'                \"appName\": \"{app_name}\",\n'
+            f'                \"commitSha\": \"\'$GIT_COMMIT\'\",\n'
+            f'                \"repositoryFullName\": \"\'$GIT_URL\'\"\n'
+            f"              }}'\n"
+            f"        '''\n"
+            f"    }}\n"
+            f"}}"
         )
-        lines.append("```groovy")
-        lines.append(
-            f"""\
-stage('Notify Swarmia') {{
-    steps {{
-        sh '''
-            curl -X POST https://hook.swarmia.com/deployments \\
-              -H "Authorization: $SWARMIA_DEPLOYMENTS_AUTHORIZATION" \\
-              -H "Content-Type: application/json" \\
-              -d '{{
-                "version": "'$GIT_COMMIT'",
-                "appName": "{app_name}",
-                "commitSha": "'$GIT_COMMIT'",
-                "repositoryFullName": "'$GIT_URL'"
-              }}'
-        '''
-    }}
-}}"""
-        )
-        lines.append("```")
-        lines.append(
-            "\n**Setup steps:**\n"
-            "1. Add `SWARMIA_DEPLOYMENTS_AUTHORIZATION` as a Jenkins credential\n"
-            "2. Inject it as an environment variable in your pipeline"
-        )
-    else:
-        lines.append(
-            "No `.github/workflows/`, `.gitlab-ci.yml`, or `Jenkinsfile` found in this repository.\n\n"
-            "Swarmia deployment tracking requires a CI/CD pipeline that sends an HTTP POST "
-            "to `https://hook.swarmia.com/deployments` after each successful deployment.\n\n"
-            "**Required payload:**\n"
-            "```json\n"
-            "{\n"
-            f'  "version": "<commit-sha>",\n'
-            f'  "appName": "{app_name}",\n'
-            f'  "commitSha": "<commit-sha>",\n'
-            f'  "repositoryFullName": "<owner>/<repo>"\n'
-            "}\n"
-            "```\n\n"
-            "**Header:** `Authorization: <SWARMIA_DEPLOYMENTS_AUTHORIZATION>`\n\n"
-            "Would you like me to create a `.github/workflows/` directory and generate a GitHub Actions workflow?"
-        )
+        setup_steps_raw = [
+            "Add `SWARMIA_DEPLOYMENTS_AUTHORIZATION` as a Jenkins credential",
+            "Inject it as an environment variable in your pipeline",
+        ]
 
-    text = "\n".join(lines)
+    # --- Build directive summary for LLM (widget shows YAML + steps) ---
+    summary_lines: list[str] = []
 
-    # Detect which CI was found for the widget
     detected_ci = None
     if has_github:
         detected_ci = "GitHub Actions"
@@ -521,34 +469,29 @@ stage('Notify Swarmia') {{
     elif has_jenkins:
         detected_ci = "Jenkins"
 
-    # Extract the raw YAML/config snippet (between code fences) for widget preview
-    yaml_snippet = ""
-    setup_steps: list[str] = []
-    in_code = False
-    code_lines: list[str] = []
-    for line in lines:
-        if line.startswith("```") and not in_code:
-            in_code = True
-            continue
-        if line.startswith("```") and in_code:
-            in_code = False
-            continue
-        if in_code:
-            code_lines.append(line)
-    yaml_snippet = "\n".join(code_lines)
+    if detected_ci:
+        summary_lines.append(f"Detected CI/CD: {detected_ci}. App name: `{app_name}`.")
+        summary_lines.append(
+            f"Target file: "
+            + (
+                "`.github/workflows/swarmia-deploy.yml`" if has_github
+                else "`.gitlab-ci.yml`" if has_gitlab
+                else "`Jenkinsfile`"
+            )
+        )
+    else:
+        summary_lines.append(
+            "No CI/CD framework detected (no .github/workflows/, .gitlab-ci.yml, or Jenkinsfile). "
+            "Offer to create a GitHub Actions workflow or explain the generic webhook setup."
+        )
 
-    # Extract setup steps (lines starting with a number after **Setup steps:**)
-    in_steps = False
-    for line in lines:
-        if "Setup steps:" in line:
-            in_steps = True
-            continue
-        if in_steps and line.strip():
-            # Strip leading number + dot
-            step = line.strip()
-            if step and step[0].isdigit():
-                step = step.split(". ", 1)[-1]
-            setup_steps.append(step)
+    summary_lines.append(
+        "\nThe widget shows the generated YAML config and setup steps. "
+        "Focus on whether the user should customize the config "
+        "(app name, workflow trigger, secrets) — do not repeat the YAML snippet."
+    )
+
+    text = "\n".join(summary_lines)
 
     return ToolResult(
         content=[TextContent(type="text", text=text)],
@@ -556,8 +499,8 @@ stage('Notify Swarmia') {{
             "detected_ci": detected_ci,
             "app_name": app_name,
             "workflow_name": workflow_name,
-            "yaml_snippet": yaml_snippet,
-            "setup_steps": setup_steps,
+            "yaml_snippet": yaml_snippet_raw,
+            "setup_steps": setup_steps_raw,
         },
         meta={},
     )
@@ -601,8 +544,9 @@ def query_swarmia_docs(query: str) -> str:
         f"---\n\n"
         f"**Swarmia Documentation Context:**\n\n{docs_content}\n\n"
         f"---\n\n"
-        f"Use the documentation above to answer the user's question concisely (max 3 sentences "
-        f"unless the user asks for more detail)."
+        f"Answer the user's question concisely (max 3 sentences unless the user asks for more detail). "
+        f"The widget shows integration status and a link to help.swarmia.com — "
+        f"do not repeat integration details in your response."
     )
 
     # Build integration diagnostic signals from the local workspace
