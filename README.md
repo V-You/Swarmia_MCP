@@ -42,7 +42,7 @@ echo 'LINEAR_API_KEY=lin_api_yourkey' > .env
 
 Add `.vscode/mcp.json` to your project. It tells VS Code how to start the MCP server.
 
-**Option A — Install from GitHub (recommended for your project):**
+**Option A: Install from GitHub (recommended for your project):**
 
 ```json
 {
@@ -61,7 +61,7 @@ Add `.vscode/mcp.json` to your project. It tells VS Code how to start the MCP se
 
 `uvx` fetches the package directly from GitHub, builds it in an isolated environment, and runs the `swarmia-mcp` entry point. No cloning required &ndash; just commit this `mcp.json` to your repo and every developer gets the server automatically.
 
-**Option B — Local development (of this repo):**
+**Option B: Local development (of this repo):**
 
 ```json
 {
@@ -158,8 +158,8 @@ include screencast
 
 ```
 IDE (VS Code)
-  ├── /swarmia          (Skill — developer persona)
-  ├── /swarmia-admin    (Skill — infra persona)
+  ├── /swarmia          (Skill - developer persona)
+  ├── /swarmia-admin    (Skill - infra persona)
   └── LLM routes intent
         ↓
   swarmia_mcp/server.py (FastMCP, stdio transport)
