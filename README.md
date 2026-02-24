@@ -142,7 +142,7 @@ npx @modelcontextprotocol/inspector uv run python -m swarmia_mcp
 ```
 /swarmia Why isn't my current work showing up in the Investment Balance view?
 ```
-> Agent chains tools: checks your git history for missing issue keys, then explains that Swarmia requires PR&ndash;issue linking to categorize work into investment categories.
+> <img src="img/Screenshot_2026-02-23_210756.png" width="33">&nbsp;Agent chains tools: checks your git history for missing issue keys, then explains that Swarmia requires PR&ndash;issue linking to categorize work into investment categories.
 
 
 
