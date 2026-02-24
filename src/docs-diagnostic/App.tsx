@@ -48,40 +48,40 @@ export function App() {
     <div style={styles.container}>
       <h3 style={styles.heading}>📋 Swarmia Docs Diagnostic</h3>
 
-      {/* Question & Answer */}
-      <div style={styles.qaSection}>
-        <div style={{ fontSize: 13, color: "var(--sw-fg-muted)", marginBottom: 4 }}>
-          Question:
-        </div>
-        <div style={{ fontWeight: 600, marginBottom: 8 }}>{data.query}</div>
-        <div style={styles.answerBox}>{data.answer}</div>
+      {/* Question & source link */}
+      <div style={{ marginBottom: 12 }}>
+        <div style={{ fontWeight: 600 }}>{data.query}</div>
+        <a
+          href="https://help.swarmia.com/"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ fontSize: 13, color: "#3b82f6" }}
+        >
+          help.swarmia.com
+        </a>
       </div>
 
-      {/* Integration status lights */}
+      {/* Integration status — compact lines */}
       {data.integrations.length > 0 && (
-        <div style={{ marginTop: 16 }}>
-          <h4 style={{ margin: "0 0 8px" }}>Integration Status</h4>
-          <div style={styles.grid}>
-            {data.integrations.map((integ) => (
-              <div key={integ.name} style={styles.card}>
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <span
-                    style={{
-                      ...styles.dot,
-                      background: statusColors[integ.status],
-                    }}
-                  />
-                  <strong>{integ.name}</strong>
-                  <span style={{ marginLeft: "auto" }}>
-                    {statusIcons[integ.status]}
-                  </span>
-                </div>
-                <div style={{ fontSize: 12, color: "var(--sw-fg-muted)", marginTop: 4 }}>
-                  {integ.detail}
-                </div>
-              </div>
-            ))}
-          </div>
+        <div>
+          <h4 style={{ margin: "0 0 4px", fontSize: 13 }}>Integration Status</h4>
+          {data.integrations.map((integ) => (
+            <div key={integ.name} style={styles.statusLine}>
+              <span
+                style={{
+                  ...styles.dot,
+                  background: statusColors[integ.status],
+                }}
+              />
+              <strong style={{ fontSize: 13 }}>{integ.name}</strong>
+              <span style={{ fontSize: 12, color: "var(--sw-fg-muted)" }}>
+                {integ.detail}
+              </span>
+              <span style={{ marginLeft: "auto", fontSize: 12 }}>
+                {statusIcons[integ.status]}
+              </span>
+            </div>
+          ))}
         </div>
       )}
     </div>
@@ -95,34 +95,16 @@ const styles: Record<string, React.CSSProperties> = {
     maxWidth: 640,
     color: "var(--sw-fg)",
   },
-  heading: { margin: "0 0 12px", fontSize: 16 },
-  qaSection: {
-    padding: 12,
-    background: "var(--sw-bg-surface)",
-    borderRadius: 6,
-  },
-  answerBox: {
-    padding: 10,
-    background: "var(--sw-bg-card)",
-    borderRadius: 4,
-    border: "1px solid var(--sw-border)",
-    fontSize: 13,
-    lineHeight: 1.5,
-  },
-  grid: {
+  heading: { margin: "0 0 8px", fontSize: 16 },
+  statusLine: {
     display: "flex",
-    flexDirection: "column" as const,
+    alignItems: "center",
     gap: 8,
-  },
-  card: {
-    padding: 10,
-    background: "var(--sw-bg-card)",
-    border: "1px solid var(--sw-border)",
-    borderRadius: 6,
+    padding: "3px 0",
   },
   dot: {
-    width: 10,
-    height: 10,
+    width: 8,
+    height: 8,
     borderRadius: "50%",
     display: "inline-block",
     flexShrink: 0,
