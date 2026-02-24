@@ -18,7 +18,7 @@
 
 ## Scenario 2: 
 
-| ``/swarmia`` I just joined the team. <br>Is my local setup ready? (standard UI) | ``/swarmia`` I just joined the team. <br>Is my local setup ready? (rich UI) | ``/swarmia`` Check my last 5 commits for compliance <br>(rich UI) |
+| I just joined the team. <br>Is my local setup ready? <br>(standard UI) | I just joined the team. <br>Is my local setup ready? <br>(rich UI) | ``/swarmia`` Check my last 5 commits <br>for compliance <br>(rich UI) |
 | :---: | :----: | :---: |
 | <kbd><img src="img/Screenshot_2026-02-23_023512.png" alt="Scenario 2: I just joined the team" width="99px" /></kbd> | <kbd><img src="img/Screenshot_2026-02-23_125741.png" alt="Scenario 2: Check last 5 commits - Rich pt 1" width="99px" /></kbd><br><kbd><img src="img/Screenshot_2026-02-23_125901.png" alt="Scenario 2: Check last 5 commits - Rich pt 2" width="99px" /></kbd> | <kbd><img src="img/Screenshot_2026-02-23_124347.png" alt="Scenario 2: Check last 5 commits" width="99px" /></kbd> |
 
