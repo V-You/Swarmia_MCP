@@ -168,34 +168,33 @@ IDE (VS Code)
     └── query_swarmia_docs            →  bundled docs + diagnostics → ui://docs-diagnostic.html
 ```
 
-**Transport:** stdio (zero-latency local process). The server runs as a child process of the IDE &ndash; no network ports, no Docker.
+**Transport:** stdio (local). Server runs as a child process of the IDE.
 
-**MCP Apps:** Each tool declares a `ui://` resource via FastMCP's native `AppConfig`. The host (VS Code) fetches self-contained HTML via `resources/read` and renders it inline. No HTTP server needed &ndash; widget HTML with inlined React bundles is served directly over the MCP protocol.
+**MCP Apps:** Each tool declares a `ui://` resource via FastMCP's `AppConfig`. The host (VS Code) fetches HTML via `resources/read` and renders it inside the Chat window: widgetized HTML with inlined React bundles is served directly over the MCP protocol.
 
-**Distribution:** Installable Python package. Use `uvx --from git+https://github.com/V-You/Swarmia_MCP swarmia-mcp` to install from GitHub without cloning, or `uv run python -m swarmia_mcp` for local development.
+**Distribution:** Use `uvx --from git+https://github.com/V-You/Swarmia_MCP swarmia-mcp` to install from GitHub without cloning. Use `uv run python -m swarmia_mcp` for local development.
 
 ## Tools
 
 ### `check_swarmia_commit_hygiene`
-Reads local `git log` and `git branch`, regex-scans for issue tracker IDs (e.g. `ENG-123`), and optionally validates each issue against the Linear GraphQL API. Returns structured JSON with both text and data for the interactive widget.
+Reads local `git log` and `git branch`, regex-scans for issue tracker IDs (e.g. `ENG-123`), and optionally validates each issue against the Linear GraphQL API. Returns structured JSON with both text and data for the interactive widget. 
 
-- **With `LINEAR_API_KEY`:** Full validation &ndash; fetches issue title, status, and confirms assignment to the current user
-- **Without `LINEAR_API_KEY`:** Graceful degradation to regex-only matching with a note to add the key
+- With `LINEAR_API_KEY`: Full validation &ndash; issue title, status, assignment
+- Without `LINEAR_API_KEY`: Fallback to regex-only matching with a note to add the key
 - **Widget:** Interactive commit table with progress bar and Linear verification status
 
 ### `scaffold_swarmia_deployment`
-Detects the CI/CD framework (GitHub Actions, GitLab CI, Jenkins) by scanning the workspace, then generates the exact webhook configuration for Swarmia's Deployment API (`POST https://hook.swarmia.com/deployments`).
+Detects the CI/CD framework (GitHub Actions, GitLab CI, Jenkins) by scanning the workspace, then generates the webhook configuration for Swarmia's Deployment API (`POST https://hook.swarmia.com/deployments`).
 
-- Pure generation &ndash; returns YAML/config as text, never writes to the filesystem
+- Pure generation &ndash; returns YAML/config as text, does not write to the filesystem
 - The IDE's native file-edit tools handle applying the diff
-- **Widget:** Configuration preview with CI provider badge, YAML snippet, and setup steps
+- **Widget:** Config preview with CI provider badge, YAML snippet, and setup steps
 
 ### `query_swarmia_docs`
-Reads the bundled `docs_context.md` (curated from the Swarmia help center) and returns it with the user's query for the LLM to extract a concise answer. Also runs local integration diagnostics.
+Reads the bundled `docs_context.md` (curated from the Swarmia help center) and returns it for the LLM to extract a concise answer. Also runs local integration diagnostics. 
 
-Covers: getting started, deployment tracking, DORA metrics, cycle time, investment balance, PR&ndash;issue linking, working agreements.
-
-- **Widget:** Traffic-light diagnostic dashboard showing GitHub, Linear, Slack, and Deployment Tracking integration status
+- Covers: getting started, deployment tracking, DORA metrics, cycle time, investment balance, PR-issue linking, working agreements
+- **Widget:** Traffic-light dashboard: GitHub, Linear, Slack, Deployment Tracking integration status
 
 ## Environment Variables
 
@@ -207,7 +206,7 @@ Covers: getting started, deployment tracking, DORA metrics, cycle time, investme
 ## Project Structure
 
 ```
-├── swarmia_mcp/                         # Installable Python package
+├── swarmia_mcp/                        # Installable Python package
 │   ├── __init__.py
 │   ├── __main__.py                     # python -m swarmia_mcp entry point
 │   ├── server.py                       # MCP server (3 tools + 3 ui:// resources)
@@ -215,7 +214,7 @@ Covers: getting started, deployment tracking, DORA metrics, cycle time, investme
 ├── src/                                # Widget source (React + TypeScript)
 │   ├── commit-hygiene/                 # Commit hygiene dashboard
 │   ├── deployment-scaffold/            # CI config wizard
-│   └── docs-diagnostic/               # Integration status dashboard
+│   └── docs-diagnostic/                # Integration status dashboard
 ├── assets/                             # Built widgets (tracked for distribution)
 │   ├── commit-hygiene/index.html       # Self-contained HTML + inlined JS
 │   ├── deployment-scaffold/index.html
