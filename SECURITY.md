@@ -10,5 +10,5 @@
 | **3** | `workflow_name` user-controlled, injected into YAML `[{workflow_name}]` | Validate against a safe regex pattern (e.g. `[a-zA-Z0-9 _-]+`) | 2026-02-23 |
 | **3** | `load_dotenv()` runs unconditionally, may load unrelated .env | Document expected env vars; consider explicit path for .env loading | SKIP FOR NOW: changing to explicit path could break CWD-based .env, needs testing |
 | **4** | No auth on MCP server (stdio-based, local only) | N/A | By design |
-| **4** | docs_context.md is a static snapshot (2026-02-22) | No SSRF risk, but content may drift from live docs | |
-| **4** | SKILL.md instructs LLM to offer git rebase / file writes | Commit messages could contain prompt injection, consider sanitizing tool output | |
+| **4** | docs_context.md is a static snapshot (2026-02-22) | Content may drift from live docs | No SSRF risk |
+| **4** | SKILL.md instructs LLM to offer git rebase / file writes | Commit messages could contain prompt injection, consider sanitizing tool output | Out of scope |
