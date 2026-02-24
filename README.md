@@ -237,7 +237,7 @@ Covers: getting started, deployment tracking, DORA metrics, cycle time, investme
 
 ---
 
-# Troubleshooting
+## Troubleshooting
 
 ### uv not found
 
