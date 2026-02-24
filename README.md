@@ -136,7 +136,7 @@ npx @modelcontextprotocol/inspector uv run python -m swarmia_mcp
 ```
 /swarmia How does Swarmia calculate Cycle Time?
 ```
-> Agent queries bundled documentation and returns a concise answer (max 3 sentences) grounded in official Swarmia help center content.
+> <img src="img/Screenshot_2026-02-23_203726.png" width="28">&nbsp;Agent queries bundled documentation and returns a concise answer (max 3 sentences) grounded in official Swarmia help center content.
 
 **Check why work isn't showing up in Investment Balance:**
 ```
