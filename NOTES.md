@@ -1,54 +1,13 @@
-# STDIO vs HTTP
+# Roadmap notes
 
-**Choice:** stdio transport over Streamable HTTP. While HTTP is great for centralized, remote context, the core value of this Swarmia agent is assessing the developer's local, unpushed workspace &ndash; like checking if their local branch name follows the Jira naming convention. By deploying it as a stdio child process managed by the IDE, we get zero-latency access to the local file system without opening local network ports, avoiding firewall issues, or dealing with localhost port conflicts. It’s a secure, production-ready way to deliver local developer experience. Downsides are billing, access control, usage metrics.
+- Add Cloudflare Code Mode, see ``md/code-mode _scoping.md`` - huge quality jump for complex questions (something something docs and what does this mean for my repo's PR merge time), plus out of the box API key security
+- ...
 
-**Control plane VS Asset plane:** JSN-RPC transport via stdio (control), even though "mcp-app-template" uses HTTP for asset transport (widgets/iframes). Not a contradiction, regular use case.
+# Random notes
 
-**MCP Inspector:** Do not test your MCP server by constantly reloading your IDE or AI chat window. It will slow you down immensely. Use the official MCP Inspector to test your Python tools in a browser sandbox before connecting them to VS Code. In a separate terminal, run:
+## STDIO vs HTTP
 
-`npx @modelcontextprotocol/inspector uv run server.py`
-
-This will open a local web page, where I can manually click "Call Tool" on ``check_swarmia_commit_hygiene`` and see exactly what JSON schema FastMCP generated and what stdout my Python script returned. 
-
-*Scenario: Walk in with a laptop, open VS Code, type ``/swarmia-troubleshoot``. Agent replies: "I just checked your local git history and found 2 commits missing Jira IDs." Lasting impression.*
-
-**Portability**
-
-Creating a Dockerfile would be a trap - fatal flaw **file system isolation**. Swarmia Skills derive value from reading the local, unpushed workspace. They need to run `git log` on  current projects and read local `CODEOWNERS` file. Correct way to build MCP portability: **containerize only the Python environment**, using **`uv`** (Zero-install execution). 
-
-*Install:* `uvx` or `uv run` (Python version and dependencies downloaded on the fly). Prerequisit: uv. VS Code / Claude Desktop config:
-
-```json
-{
-  "mcpServers": {
-    "swarmia-ide-agent": {
-      "command": "uv",
-      "args": [
-        "run",
-        "--with", "fastmcp",
-        "mcp_server.py"
-      ]
-    }
-  }
-}
-
-```
-
-*Distribution:* Python package (to PyPI). Dev runs:
-
-```bash
-npx @modelcontextprotocol/inspector npx -y your-swarmia-package
-# or
-uvx your-swarmia-package
-
-```
-
-*Scenario: How you plan to deploy or package this? &ndash; "My initial instinct was to write a Dockerfile, but I realized that for an IDE-integrated `stdio` server, containerization is an anti-pattern. The agent needs native, zero-latency access to the host's `.git` repository and local files. Instead of isolating it in Docker and fighting with dynamic volume mounts, I packaged it using `uv`. This guarantees perfectly reproducible Python environments across any developer's machine while maintaining native access to their local workspace. It turns a complex Docker deployment into a simple `uvx run` command."*
-
-
----
-
-**Detour:** Docker vs uv (Irrelevant for PRD because ``uv`` already won for present use case)
+**Stdio transport over Streamable HTTP.** While HTTP is great for centralized, remote context, the core value of this Swarmia agent is assessing the developer's local, unpushed workspace &ndash; like checking if their local branch name follows the Jira naming convention. By deploying it as a stdio child process managed by the IDE, we get zero-latency access to the local file system without opening local network ports, avoiding firewall issues, or dealing with localhost port conflicts. It’s a secure, production-ready way to deliver local developer experience. Downsides are billing, access control, usage metrics. **Control plane VS Asset plane:** JSN-RPC transport via stdio (control), even though "mcp-app-template" uses HTTP for asset transport (widgets/iframes). Not a contradiction, regular use case.
 
 ### MCP server Type 1: The "Infrastructure & Data" Agent (Docker wins)
 
@@ -63,6 +22,22 @@ Example: Web API MCP Server. "Data lake" project = Type 1.
 * **Goal:** Act as a pair programmer that looks over the developer's shoulder at whatever code they are currently writing.
 * **`uv` wins:** The target is dynamic. Dev opens `repo-A` in VS Code at 9 AM, and `repo-B` at 10 AM. Agent needs to instantly read the `.git` folder of whichever one is active. If this was in Docker, container with new volume mounts might have to be destroyed/rebuilt every time a new folder is opened in the IDE.
 * *Examples:* Git hygiene checkers, code linters, local file scaffolders.
+
+## Testing
+
+**MCP Inspector:** Constantly reloading the IDE chat window is slow. The official MCP Inspector allows testing Python tools in a browser sandbox before connecting them to VS Code. In a separate terminal:
+
+`npx @modelcontextprotocol/inspector uv run server.py`
+
+Opens a local web page. Manually click "Call Tool" on ``check_swarmia_commit_hygiene`` -- result is the generated JSON schema FastMCP and what stdout Python script returned. 
+
+## Distribution
+
+**Portability:** Creating a Dockerfile would be a trap because of **file system isolation**. Swarmia Skills derive value from reading the local, unpushed workspace. They need to run `git log` on  current projects and read local `CODEOWNERS` file. Correct way to build MCP portability: **containerize only the Python environment**, using **`uv`** (Zero-install execution). *Install:* `uvx` or `uv run` (Python version and dependencies downloaded on the fly). Prerequisit: uv. VS Code / Claude Desktop config: -- see README
+
+---
+
+## Talking points
 
 ### Talking Point - Architectural tradeoff: Docker vs uv
 
@@ -80,15 +55,13 @@ Example: Web API MCP Server. "Data lake" project = Type 1.
 
 *Absence of Swarmia PAT **reduces developer friction**. Core features to require **zero Swarmia authentication**. A big hurdle to developer tooling adoption is the 'Token Dance' - making a dev stop what they are doing, log into a web portal, generate a PAT, paste it into their IDE. This agent focuses on local git hygiene and generating deployment scaffolding, it can provide immediate 'Time to Value' on Day 1 without ever requiring the developer to generate a Swarmia API key. It just enforces the rules locally and uses the developer's existing Linear access."*
 
-We architected a "bottom-up" local workspace agent, as opposed to a "top-down" data scraper. The MCP server is stateless (almost). Advantage of this "Zero Swarmia Auth" angle:
+We architected a "bottom-up" local workspace agent, as opposed to a "top-down" data scraper. The MCP server is stateless (almost). Advantage of this "Zero Swarmia Auth" angle -- ***check README for up-to-date:***
 
-**Git hygiene tool** - `check_swarmia_commit_hygiene` runs locally. It reads the local file system using `git log`. Live issue verification talks to the **Linear API** (using my Linear PAT). The tool never needs to talk to Swarmia's backend because it is simply enforcing Swarmia's *formatting rules* before the code is pushed to GitHub.
+> **Git hygiene tool** - `check_swarmia_commit_hygiene` runs locally. It reads the local file system using `git log`. Live issue verification talks to the **Linear API** (using my Linear PAT). The tool never needs to talk to Swarmia's backend because it is simply enforcing Swarmia's *formatting rules* before the code is pushed to GitHub.
 
-**Deployment scaffolding tool** - `scaffold_swarmia_deployment` tool is just a highly intelligent text generator. It inspects the local `.github/workflows` folder and generates the YAML snippet. 
+> **Deployment scaffolding tool** - `scaffold_swarmia_deployment` tool is just a highly intelligent text generator. It inspects the local `.github/workflows` folder and generates the YAML snippet. 
 
-**The Documentation tool** - `query_swarmia_docs` is just scraping or using RAG of a public help center (`help.swarmia.com`). No authentication required.
-
-**But also:** 
+> **The Documentation tool** - `query_swarmia_docs` is just scraping or using RAG of a public help center (`help.swarmia.com`). No authentication required. **But also:** 
 
 - *Deployment token:* Swarmia *does* require a token to accept the webhook. But the MCP server does not need to hold it. The MCP agent simply generates the YAML that says: `Authorization: Bearer ${{ secrets.SWARMIA_DEPLOYMENT_TOKEN }}` and instructs the user: *"I've generated the pipeline code. Please grab your deployment token from your Swarmia settings and drop it into your GitHub Secrets."*
 - ``/swarmia-admin``, if implemented, would generate and use an API token, for **Context/Team Mapping type tools**.Example: Agent reads the local `.github/CODEOWNERS` file and wants to ping Swarmia's backend to say, *"Does the `@my-org/frontend` team actually exist in Swarmia yet?"*. Requires a Swarmia API key to hit the `GET /api/v0/teams` endpoint.
@@ -109,11 +82,9 @@ There are 2 methods to detect an issue, the real way if connection to Linear exi
 *In Phase 1, FastMCP's standard inline decorators was used. This got the project off the ground immediately. During Phase 2, there is a paradigm clash: the UI template relies on dynamic file discovery, while FastMCP expects static decorators. A dynamic adapter layer is required. The main server loop iterates over the widget directory, extracts the UI metadata, and programmatically binds the handle() functions to the FastMCP registry. Advantages: Architectural scalability of the UI template, without losing the rock-solid protocol handling of FastMCP.*
 
 
-
-
 ---
 
-# Notes on introducing the 2nd Skill (``/swarmia-admin`` with Admin persona)
+# The 2nd Skill (``/swarmia-admin`` with DevOps persona)
 
 My pitch is about the death of static knowledge bases and the rise of **executable documentation**. If `/swarmia-admin` ends up looking like a CLI automation tool, it distracts from the "docs+tool" philosophy. However, from a Post-Sales/TSE angle, there is a cluster of advantages to having that 2nd Skill:
 
@@ -137,9 +108,11 @@ That said, this 2nd Skill might not be finished in time. Priority is on single S
 
 ---
 
+# Use cases
 
+Check README, might have done some already and forgot
 
-# Realistic use case 1:
+## Realistic use case 1:
 
 Dev:
 
@@ -159,7 +132,7 @@ Response to Dev:
 
 
 
-# Realistic use case 2
+## Realistic use case 2
 
 Screen share with VS Code open:
 
@@ -175,7 +148,3 @@ This shows:
 - Swarmia's data model
 - how issue trackers feed into it
 - and local AI agents enforce that data hygiene in real-time
-
----
-
-
