@@ -84,6 +84,7 @@ mcp = FastMCP(
 
 LINEAR_API_URL = "https://api.linear.app/graphql"
 ISSUE_KEY_PATTERN = re.compile(r"[A-Z]{2,10}-\d+")
+SAFE_NAME_PATTERN = re.compile(r"[^a-zA-Z0-9_-]")
 
 
 # ---------------------------------------------------------------------------
@@ -197,6 +198,7 @@ def check_swarmia_commit_hygiene(num_commits: int = 10) -> str:
     Args:
         num_commits: Number of recent commits to check (default: 10).
     """
+    num_commits = max(1, min(int(num_commits), 100))
     logger.info("check_swarmia_commit_hygiene: scanning last %d commits", num_commits)
 
     # --- Get branch name ---
@@ -408,6 +410,8 @@ def scaffold_swarmia_deployment(
 
     if not app_name:
         app_name = workspace.name
+    app_name = SAFE_NAME_PATTERN.sub("-", app_name)
+    workflow_name = SAFE_NAME_PATTERN.sub("-", workflow_name)
 
     # Detect CI/CD framework
     has_github = (workspace / ".github" / "workflows").is_dir()
@@ -575,10 +579,18 @@ def query_swarmia_docs(query: str) -> str:
         "detail": "Configured in Swarmia dashboard (cannot verify locally)",
     })
 
-    # Deployment tracking: check for webhook config
+    # Deployment tracking: check for webhook config in known CI paths
+    ci_files: list[Path] = []
+    gh_workflows = Path.cwd() / ".github" / "workflows"
+    if gh_workflows.is_dir():
+        ci_files.extend(gh_workflows.glob("*.yml"))
+        ci_files.extend(gh_workflows.glob("*.yaml"))
+    gitlab_ci = Path.cwd() / ".gitlab-ci.yml"
+    if gitlab_ci.is_file():
+        ci_files.append(gitlab_ci)
     has_deploy = any(
-        "hook.swarmia.com" in (f.read_text(encoding="utf-8", errors="ignore"))
-        for f in Path.cwd().rglob("*.yml")
+        "hook.swarmia.com" in f.read_text(encoding="utf-8", errors="ignore")
+        for f in ci_files
         if f.stat().st_size < 50_000
     )
     integrations.append({
