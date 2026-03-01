@@ -22,7 +22,7 @@ export function App() {
   if (!data) {
     return (
       <div style={styles.container}>
-        <h3 style={styles.heading}>🚀 Deployment Scaffold</h3>
+        <h3 style={styles.heading}>Deployment Scaffold</h3>
         <p style={{ color: "var(--sw-fg-faint)" }}>Waiting for data from tool...</p>
       </div>
     );
@@ -30,7 +30,7 @@ export function App() {
 
   return (
     <div style={styles.container}>
-      <h3 style={styles.heading}>🚀 Deployment Scaffold</h3>
+      <h3 style={styles.heading}>Deployment Scaffold</h3>
 
       {/* CI provider badge */}
       <div style={styles.detectedRow}>

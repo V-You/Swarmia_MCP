@@ -31,7 +31,7 @@ export function App() {
   if (!data) {
     return (
       <div style={styles.container}>
-        <h3 style={styles.heading}>🔍 Commit Hygiene Check</h3>
+        <h3 style={styles.heading}>Commit Hygiene Check</h3>
         <p style={{ color: "var(--sw-fg-faint)" }}>Waiting for data from tool...</p>
       </div>
     );
@@ -42,18 +42,18 @@ export function App() {
 
   return (
     <div style={styles.container}>
-      <h3 style={styles.heading}>🔍 Commit Hygiene Check</h3>
+      <h3 style={styles.heading}>Commit Hygiene Check</h3>
 
       {/* Branch */}
       <div style={styles.branchRow}>
         <strong>Branch:</strong> <code>{data.branch}</code>
         {data.branch_ids.length > 0 ? (
           <span style={{ color: "#22c55e", marginLeft: 8 }}>
-            ✅ {data.branch_ids.join(", ")}
+            {data.branch_ids.join(", ")}
           </span>
         ) : (
           <span style={{ color: "#f59e0b", marginLeft: 8 }}>
-            ⚠️ No issue key
+            No issue key
           </span>
         )}
       </div>
@@ -93,7 +93,7 @@ export function App() {
           {data.commits.map((c) => (
             <tr key={c.sha} style={styles.row}>
               <td style={styles.cell}>
-                {c.ids.length > 0 ? "✅" : "⚠️"}
+                {c.ids.length > 0 ? "Pass" : "Missing"}
               </td>
               <td style={styles.cell}>
                 <code style={{ fontSize: 12 }}>{c.sha.slice(0, 7)}</code>
@@ -113,10 +113,10 @@ export function App() {
             <div key={id} style={{ padding: "4px 0", fontSize: 13 }}>
               <strong>{id}</strong>: {info.title} — <em>{info.state}</em>
               {info.assigned_to_you === true && (
-                <span style={{ color: "#22c55e" }}> (yours ✅)</span>
+                <span style={{ color: "#22c55e" }}> (yours)</span>
               )}
               {info.assigned_to_you === false && (
-                <span style={{ color: "#f59e0b" }}> (⚠️ not yours)</span>
+                <span style={{ color: "#f59e0b" }}> (not yours)</span>
               )}
             </div>
           ))}

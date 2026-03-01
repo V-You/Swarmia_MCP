@@ -26,7 +26,7 @@ export function App() {
   if (!data) {
     return (
       <div style={styles.container}>
-        <h3 style={styles.heading}>📋 Swarmia Docs Diagnostic</h3>
+        <h3 style={styles.heading}>Swarmia Docs Diagnostic</h3>
         <p style={{ color: "var(--sw-fg-faint)" }}>Waiting for data from tool...</p>
       </div>
     );
@@ -38,15 +38,9 @@ export function App() {
     red: "#ef4444",
   };
 
-  const statusIcons: Record<string, string> = {
-    green: "✅",
-    yellow: "⚠️",
-    red: "❌",
-  };
-
   return (
     <div style={styles.container}>
-      <h3 style={styles.heading}>📋 Swarmia Docs Diagnostic</h3>
+      <h3 style={styles.heading}>Swarmia Docs Diagnostic</h3>
 
       {/* Question & source link */}
       <div style={{ marginBottom: 12 }}>
@@ -76,9 +70,6 @@ export function App() {
               <strong style={{ fontSize: 13 }}>{integ.name}</strong>
               <span style={{ fontSize: 12, color: "var(--sw-fg-muted)" }}>
                 {integ.detail}
-              </span>
-              <span style={{ marginLeft: "auto", fontSize: 12 }}>
-                {statusIcons[integ.status]}
               </span>
             </div>
           ))}
