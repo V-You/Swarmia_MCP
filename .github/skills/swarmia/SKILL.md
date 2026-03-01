@@ -22,10 +22,11 @@ You have access to a local Swarmia MCP Server equipped with the following tools.
 
 When a user invokes `/swarmia [their query]`, follow these steps:
 
-1. **Analyze intent:** Determine if the user is trying to *troubleshoot local tracking*, *implement CI/CD tracking*, or *learn a concept*.
+1. **Analyze intent:** Determine if the user is trying to *troubleshoot local tracking*, *implement CI/CD tracking*, *learn a concept*, or *get an onboarding / full-setup audit*.
 2. **Tool chaining:** You are encouraged to use multiple tools in a single response if it solves the user's problem. (e.g., querying the docs to find the standard, then checking their local git history to see if they match it).
-3. **Contextual awareness:** If you use a tool that reads local files or git history, ground your response in the actual data you found. (e.g., "I see your current branch is named `fix-auth`...")
-4. **Action-oriented output:** If you find a data hygiene issue, clearly state the problem and offer the exact git command or UI button to fix it. 
+3. **Onboarding / setup audit:** When the user's intent is broad (e.g., "I just joined the team", "is my setup ready?", "full audit"), call **both** `check_swarmia_commit_hygiene` **and** `scaffold_swarmia_deployment`. New team members won't know to ask about deployment tracking specifically, so proactively surface the deployment scaffold widget alongside commit hygiene so they can see the full picture in one shot.
+4. **Contextual awareness:** If you use a tool that reads local files or git history, ground your response in the actual data you found. (e.g., "I see your current branch is named `fix-auth`...")
+5. **Action-oriented output:** If you find a data hygiene issue, clearly state the problem and offer the exact git command or UI button to fix it. 
 
 ## Widget interaction
 
@@ -37,6 +38,11 @@ Each tool returns an interactive widget alongside the text response. The widget 
 - If the tool text includes a directive (e.g., "focus on actionable recommendations only"), follow it.
 
 ## Example interactions
+
+**User:** `/swarmia I just joined the team. Is my local setup ready for Swarmia?`
+**Agent Thought Process:** This is an onboarding/setup audit. I should run a full check — both commit hygiene and deployment scaffold — so the new team member sees the complete picture.
+**Agent Action:** Calls `check_swarmia_commit_hygiene` and `scaffold_swarmia_deployment` (both).
+**Agent Response:** *"Welcome! I ran a full Swarmia readiness audit. Your commit hygiene looks good — all recent commits have issue keys. However, as the deployment scaffold widget shows, there's no CI/CD webhook configured yet, which means Swarmia can't compute DORA metrics (deployment frequency, lead time, etc.). Want me to generate the workflow file?"*
 
 **User:** `/swarmia Why isn't my current work showing up in the Swarmia Investment Balance view?`
 **Agent Thought Process:** The user is having a tracking issue. I need to check their local git hygiene.

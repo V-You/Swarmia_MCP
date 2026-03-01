@@ -461,6 +461,19 @@ def scaffold_swarmia_deployment(
             "Add `SWARMIA_DEPLOYMENTS_AUTHORIZATION` as a Jenkins credential",
             "Inject it as an environment variable in your pipeline",
         ]
+    else:
+        # No CI/CD detected — provide a starter GitHub Actions config
+        yaml_snippet_raw = GITHUB_ACTIONS_TEMPLATE.format(
+            app_name=app_name, workflow_name=workflow_name
+        )
+        setup_steps_raw = [
+            "Create `.github/workflows/` directory in your repository",
+            "Save this config as `.github/workflows/swarmia-deploy.yml`",
+            "Add `SWARMIA_DEPLOYMENTS_AUTHORIZATION` to your GitHub repository secrets "
+            "(Settings → Secrets and variables → Actions)",
+            f'Update the `workflow_name` to match your deploy workflow (currently: `"{workflow_name}"`)',
+            "Commit and push the workflow file",
+        ]
 
     # --- Build directive summary for LLM (widget shows YAML + steps) ---
     summary_lines: list[str] = []
