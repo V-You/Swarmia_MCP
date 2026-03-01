@@ -12,15 +12,15 @@
 
 ## Scenario 1: 
 
-| I'm unsure what to do. <br>``/swarmia`` shows me what to fix: | It works. | Is my Linear API key ok? <br>Let's check: |
-| :---: | :----: | :---: |
-| <kbd><img src="img/Screenshot_2026-02-22_195923.png" alt="Scenario 1: /swarmia tells me what to do" width="99px" /></kbd> | <kbd><img src="img/Screenshot_2026-02-22_201741.png" alt="Scenario 1: I do it and succeed" width="99px" /></kbd> | <kbd><img src="img/Screenshot_2026-02-22_203609.png" alt="Is my API key ok? Yep, sure is." width="99px" /></kbd> |
+| I'm unsure what to do. <br>``/swarmia`` shows me what to fix: | It works. <br>(regular UI)| It works. <br>(rich UI) | Is my Linear API key ok? <br>Let's check: |
+| :---: | :----: | :----: | :---: |
+| <kbd><img src="img/Screenshot_2026-02-22_195923.png" alt="Scenario 1: /swarmia tells me what to do" width="99px" /></kbd> | <kbd><img src="img/Screenshot_2026-02-22_201741.png" alt="Scenario 1: I do it and succeed" width="99px" /></kbd> | <kbd><img src="img/Screenshot_2026-02-28_205801.png" alt="Scenario 1: I do it and succeed (MCP Apps, rich UI)" width="99px" /></kbd> | <kbd><img src="img/Screenshot_2026-02-22_203609.png" alt="Is my API key ok? Yep, sure is." width="99px" /></kbd> |
 
 ## Scenario 2: 
 
 | I just joined the team. <br>Is my local setup ready? <br>(standard UI) | I just joined the team. <br>Is my local setup ready? <br>(rich UI) | ``/swarmia`` Check my last 5 commits <br>for compliance <br>(rich UI) |
 | :---: | :----: | :---: |
-| <kbd><img src="img/Screenshot_2026-02-23_023512.png" alt="Scenario 2: I just joined the team" width="99px" /></kbd> | <kbd><img src="img/Screenshot_2026-02-23_125741.png" alt="Scenario 2: Check last 5 commits - Rich pt 1" width="99px" /></kbd><br><kbd><img src="img/Screenshot_2026-02-23_125901.png" alt="Scenario 2: Check last 5 commits - Rich pt 2" width="99px" /></kbd> | <kbd><img src="img/Screenshot_2026-02-23_124347.png" alt="Scenario 2: Check last 5 commits" width="99px" /></kbd> |
+| <kbd><img src="img/Screenshot_2026-02-23_023512.png" alt="Scenario 2: I just joined the team" width="99px" /></kbd> | <kbd><img src="img/Screenshot_2026-02-23_125741.png" alt="Scenario 2: Check last 5 commits - Rich pt 1" width="99px" /></kbd><br><kbd><img src="img/Screenshot_2026-02-23_125901.png" alt="Scenario 2: Check last 5 commits - Rich pt 2" width="99px" /></kbd> | <kbd><img src="img/Screenshot_2026-02-28_210351.png" alt="Scenario 2: Check last 5 commits" width="99px" /></kbd> |
 
 
 
@@ -248,4 +248,4 @@ Cause 1: PATH mismatch.
 
 ### Duplicate output
 
-A prompt like "Check my last 5 commits" may show some results twice: once in the MCP Apps widget (rich UI), and a second time rendered by the agent. This happens mostly because MCP Apps is a relatively new feature and strategies to avoid this duplication are not formalized. Mitigation implemented here: Tools return advise (widget shows X, focus on Y) and Skills contain note to avoid duplication. (Better solution: Explicitly split concerns, widgets only show data and LLMs only do analysis/advise.)
+A prompt like "Check my last 5 commits" may show some results twice: once in the MCP Apps widget (rich UI), and a second time rendered by the agent. This happens mostly because MCP Apps is a relatively new feature and strategies to avoid this duplication are not formalized. Mitigation implemented here: Tools return advise (widget shows X, focus on Y) and Skills contain note to avoid duplication. Better solution: Explicitly split concerns, widgets only show data and LLMs only do analysis/advise. Actually, *Code Mode* solves this elegantly, see ``md/code-mode_scoping.md``, big refactor including adding a second remote MPC server and rewriting all tools, worth it.

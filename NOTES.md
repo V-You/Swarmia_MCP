@@ -1,6 +1,6 @@
 # Roadmap notes
 
-- Add Cloudflare Code Mode, see ``md/code-mode _scoping.md`` - huge quality jump for complex questions (something something docs and what does this mean for my repo's PR merge time), plus out of the box API key security
+- Add Cloudflare Code Mode, see ``md/code-mode _scoping.md`` - huge quality jump for complex questions (something something docs and what does this mean for my repo's PR merge time), plus out of the box zero-leak security for API keys (sec scanner hinted at this, CM would add "Supervisor"), plus perfect oberservability (identify pain points). Requires substantial refactoring - changes to all tools, adding a remote server (features split into local and remote MCP). Role of MCP Apps unclear.
 - ...
 
 # Random notes
